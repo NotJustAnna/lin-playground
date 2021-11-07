@@ -5,3 +5,7 @@
 .cm-lingutter {
     min-width: 1rem;
 }
+
+.cm-scroller {
+    font-family: 'JetBrains Mono', monospace !important;
+}

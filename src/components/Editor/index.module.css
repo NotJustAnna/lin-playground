@@ -20,8 +20,6 @@
 
 .cme {
     flex-grow: 1;
-    background-color: #222;
-    color: #f0f0ff;
     font-size: 18px;
     overflow: auto;
 }
