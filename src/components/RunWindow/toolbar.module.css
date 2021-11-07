@@ -1,0 +1,16 @@
+.toolbar {
+    padding: 0.75rem;
+    background-color: black;
+    display: flex;
+    flex-direction: row-reverse;
+}
+
+.button {
+    /*background: blue;*/
+    /*color: inherit;*/
+    /*border: none;*/
+    /*padding: 0.25rem;*/
+    /*font: inherit;*/
+    /*cursor: pointer;*/
+    /*outline: inherit;*/
+}

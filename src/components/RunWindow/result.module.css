@@ -1,0 +1,25 @@
+.success {
+    background-color: #2f6822;
+    margin: 0;
+    font-size: 14px;
+    padding: 0.5rem 1rem;
+    color: #f0f0ff;
+    overflow: auto;
+    white-space: pre-wrap;
+}
+
+.errored {
+    background-color: #682222;
+    margin: 0;
+    font-size: 14px;
+    padding: 0.5rem 1rem;
+    color: #f0f0ff;
+    overflow: auto;
+    white-space: pre-wrap;
+}
+
+.duration {
+    background-color: #111;
+    padding: 0.5rem 1rem;
+    color: #f0f0ff;
+}
