@@ -1,9 +1,9 @@
 import { EditorState, Extension } from '@codemirror/state';
 import { oneDarkTheme } from '@codemirror/theme-one-dark';
-import { basicSetup } from '@uiw/react-codemirror';
+import { basicSetup } from '@codemirror/basic-setup';
 import { EditorView, keymap, ViewUpdate } from '@codemirror/view';
 import { indentWithTab } from '@codemirror/commands';
-import { useState } from 'react';
+import { useEffect, useMemo } from 'react';
 
 interface ReactEditorViewAndState {
   doc: string;
@@ -25,22 +25,17 @@ export function defaultExtensions(setCode?: (value: string) => void): Extension[
 }
 
 export function useEditorViewAndState({ doc, extensions }: ReactEditorViewAndState) {
-  const [state, setState] = useState<EditorState>();
-  const [view, setView] = useState<EditorView>();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const state = useMemo(() => EditorState.create({ doc, extensions }), []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const view = useMemo(() => new EditorView({ state }), []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => () => view?.destroy(), []);
+
   const setContainer = (node: HTMLElement | null) => {
     if (!node) return;
-    let latestState = state;
-    if (!latestState) {
-      latestState = EditorState.create({ doc, extensions });
-      setState(latestState);
-    }
-    let latestView = view;
-    if (!latestView) {
-      latestView = new EditorView({ state: latestState });
-      setView(latestView);
-    }
-    if (latestView.dom.parentElement !== node) {
-      node.appendChild(latestView.dom);
+    if (view.dom.parentElement !== node) {
+      node.appendChild(view.dom);
     }
   };
   return { state, view, setContainer };

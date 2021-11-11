@@ -1,18 +1,22 @@
 type Nullable<T> = T | null | undefined
 export namespace net.notjustanna.lin.js {
-    class Compilation {
+    class CompilationResult {
         private constructor();
-        readonly parseDuration: string;
+        readonly isError: boolean;
+        readonly isSyntaxError: boolean;
+        readonly errorMessage: Nullable<string>;
+        readonly errorStackTrace: Nullable<string>;
         readonly compileDuration: string;
         sourceToBytes(): Int8Array;
         sourceToHex(): string;
         sourceToBase64(): string;
-        createVM(): net.notjustanna.lin.js.VirtualMachine;
+        run(): net.notjustanna.lin.js.ExecutionResult;
     }
 }
 export namespace net.notjustanna.lin.js {
     class ExecutionResult {
         private constructor();
+        readonly consoleLines: Array<string>;
         readonly runDuration: string;
         readonly isError: boolean;
         readonly result: string;
@@ -20,13 +24,18 @@ export namespace net.notjustanna.lin.js {
 }
 export namespace net.notjustanna.lin.js {
     const Lin: {
-        compile(source: string): net.notjustanna.lin.js.Compilation;
+        parse(source: string, name: string): net.notjustanna.lin.js.ParseResult;
     };
 }
 export namespace net.notjustanna.lin.js {
-    class VirtualMachine {
+    class ParseResult {
         private constructor();
-        run(): net.notjustanna.lin.js.ExecutionResult;
+        readonly isError: boolean;
+        readonly isSyntaxError: boolean;
+        readonly errorMessage: Nullable<string>;
+        readonly errorStackTrace: Nullable<string>;
+        readonly parseDuration: string;
+        compile(): net.notjustanna.lin.js.CompilationResult;
     }
 }
 export as namespace lin;

@@ -7,6 +7,10 @@
     root.lin = factory(typeof lin === 'undefined' ? {} : lin);
 }(this, function (_) {
   'use strict';
+  AbstractList.prototype = Object.create(AbstractCollection.prototype);
+  AbstractList.prototype.constructor = AbstractList;
+  ReversedListReadOnly.prototype = Object.create(AbstractList.prototype);
+  ReversedListReadOnly.prototype.constructor = ReversedListReadOnly;
   DoubleTimeMark.prototype = Object.create(TimeMark.prototype);
   DoubleTimeMark.prototype.constructor = DoubleTimeMark;
   Error_0.prototype = Object.create(Error.prototype);
@@ -81,12 +85,12 @@
   NumberFormatException.prototype.constructor = NumberFormatException;
   AssertionError.prototype = Object.create(Error_0.prototype);
   AssertionError.prototype.constructor = AssertionError;
+  NullPointerException.prototype = Object.create(RuntimeException.prototype);
+  NullPointerException.prototype.constructor = NullPointerException;
   UnsupportedOperationException.prototype = Object.create(RuntimeException.prototype);
   UnsupportedOperationException.prototype.constructor = UnsupportedOperationException;
   ArithmeticException.prototype = Object.create(RuntimeException.prototype);
   ArithmeticException.prototype.constructor = ArithmeticException;
-  NullPointerException.prototype = Object.create(RuntimeException.prototype);
-  NullPointerException.prototype.constructor = NullPointerException;
   NoWhenBranchMatchedException.prototype = Object.create(RuntimeException.prototype);
   NoWhenBranchMatchedException.prototype.constructor = NoWhenBranchMatchedException;
   ClassCastException.prototype = Object.create(RuntimeException.prototype);
@@ -219,8 +223,12 @@
   UnaryPositiveOperationInsn.prototype.constructor = UnaryPositiveOperationInsn;
   UnaryTruthOperationInsn.prototype = Object.create(Insn.prototype);
   UnaryTruthOperationInsn.prototype.constructor = UnaryTruthOperationInsn;
+  LinNullPointerException.prototype = Object.create(NullPointerException.prototype);
+  LinNullPointerException.prototype.constructor = LinNullPointerException;
   IllegalConstantIndexException.prototype = Object.create(RuntimeException.prototype);
   IllegalConstantIndexException.prototype.constructor = IllegalConstantIndexException;
+  LinUnsupportedOperationException.prototype = Object.create(NoSuchElementException.prototype);
+  LinUnsupportedOperationException.prototype.constructor = LinUnsupportedOperationException;
   StackUnderflowException.prototype = Object.create(NoSuchElementException.prototype);
   StackUnderflowException.prototype.constructor = StackUnderflowException;
   TokenType.prototype = Object.create(Enum.prototype);
@@ -378,6 +386,14 @@
       throw NoSuchElementException_init_$Create$_0('List is empty.');
     return _this_.get_ha5a7z_k$(0);
   }
+  function plus(_this_, element) {
+    var result = ArrayList_init_$Create$_0(_this_._get_size__0_k$() + 1 | 0);
+    result.addAll_dxd4eo_k$(_this_);
+    Unit_getInstance();
+    result.add_2bq_k$(element);
+    Unit_getInstance();
+    return result;
+  }
   function last(_this_) {
     if (_this_.isEmpty_0_k$())
       throw NoSuchElementException_init_$Create$_0('List is empty.');
@@ -385,6 +401,9 @@
   }
   function getOrNull(_this_, index) {
     return (index >= 0 ? index <= _get_lastIndex__0(_this_) : false) ? _this_.get_ha5a7z_k$(index) : null;
+  }
+  function lastOrNull(_this_) {
+    return _this_.isEmpty_0_k$() ? null : _this_.get_ha5a7z_k$(_this_._get_size__0_k$() - 1 | 0);
   }
   function toList(_this_) {
     if (isInterface(_this_, Collection)) {
@@ -422,9 +441,6 @@
     }
     return tmp$ret$0;
   }
-  function lastOrNull(_this_) {
-    return _this_.isEmpty_0_k$() ? null : _this_.get_ha5a7z_k$(_this_._get_size__0_k$() - 1 | 0);
-  }
   function reversed(_this_) {
     var tmp;
     if (isInterface(_this_, Collection)) {
@@ -445,7 +461,7 @@
   function toMutableList(_this_) {
     return ArrayList_init_$Create$_1(_this_);
   }
-  function plus(_this_, elements) {
+  function plus_0(_this_, elements) {
     if (isInterface(elements, Collection)) {
       var result = ArrayList_init_$Create$_0(_this_._get_size__0_k$() + elements._get_size__0_k$() | 0);
       result.addAll_dxd4eo_k$(_this_);
@@ -619,21 +635,6 @@
     return Companion_getInstance_4().fromClosedRange_fcwjfj_k$(_this_, to_0, -1);
   }
   function coerceIn(_this_, minimumValue, maximumValue) {
-    if (minimumValue.compareTo_wiekkq_k$(maximumValue) > 0)
-      throw IllegalArgumentException_init_$Create$('' + 'Cannot coerce value to an empty range: maximum ' + maximumValue + ' is less than minimum ' + minimumValue + '.');
-    if (_this_.compareTo_wiekkq_k$(minimumValue) < 0)
-      return minimumValue;
-    if (_this_.compareTo_wiekkq_k$(maximumValue) > 0)
-      return maximumValue;
-    return _this_;
-  }
-  function coerceAtMost(_this_, maximumValue) {
-    return _this_ > maximumValue ? maximumValue : _this_;
-  }
-  function coerceAtLeast(_this_, minimumValue) {
-    return _this_ < minimumValue ? minimumValue : _this_;
-  }
-  function coerceIn_0(_this_, minimumValue, maximumValue) {
     if (minimumValue > maximumValue)
       throw IllegalArgumentException_init_$Create$('' + 'Cannot coerce value to an empty range: maximum ' + maximumValue + ' is less than minimum ' + minimumValue + '.');
     if (_this_ < minimumValue)
@@ -642,8 +643,38 @@
       return maximumValue;
     return _this_;
   }
+  function coerceAtLeast(_this_, minimumValue) {
+    return _this_ < minimumValue ? minimumValue : _this_;
+  }
+  function coerceAtMost(_this_, maximumValue) {
+    return _this_ > maximumValue ? maximumValue : _this_;
+  }
+  function coerceIn_0(_this_, minimumValue, maximumValue) {
+    if (minimumValue.compareTo_wiekkq_k$(maximumValue) > 0)
+      throw IllegalArgumentException_init_$Create$('' + 'Cannot coerce value to an empty range: maximum ' + maximumValue + ' is less than minimum ' + minimumValue + '.');
+    if (_this_.compareTo_wiekkq_k$(minimumValue) < 0)
+      return minimumValue;
+    if (_this_.compareTo_wiekkq_k$(maximumValue) > 0)
+      return maximumValue;
+    return _this_;
+  }
   function map(_this_, transform) {
     return new TransformingSequence(_this_, transform);
+  }
+  function toList_0(_this_) {
+    return optimizeReadOnlyList(toMutableList_1(_this_));
+  }
+  function toMutableList_1(_this_) {
+    return toCollection_0(_this_, ArrayList_init_$Create$());
+  }
+  function toCollection_0(_this_, destination) {
+    var tmp0_iterator = _this_.iterator_0_k$();
+    while (tmp0_iterator.hasNext_0_k$()) {
+      var item = tmp0_iterator.next_0_k$();
+      destination.add_2bq_k$(item);
+      Unit_getInstance();
+    }
+    return destination;
   }
   function dropLast(_this_, n) {
     {
@@ -805,6 +836,26 @@
       return i.invoke_2bq_k$(p1);
     };
   }
+  function IteratorImpl($outer) {
+    this._$this = $outer;
+    this._index = 0;
+  }
+  IteratorImpl.prototype.hasNext_0_k$ = function () {
+    return this._index < this._$this._get_size__0_k$();
+  };
+  IteratorImpl.prototype.next_0_k$ = function () {
+    if (!this.hasNext_0_k$())
+      throw NoSuchElementException_init_$Create$();
+    var tmp0_this = this;
+    var tmp1 = tmp0_this._index;
+    tmp0_this._index = tmp1 + 1 | 0;
+    return this._$this.get_ha5a7z_k$(tmp1);
+  };
+  IteratorImpl.$metadata$ = {
+    simpleName: 'IteratorImpl',
+    kind: 'class',
+    interfaces: [Iterator]
+  };
   function Companion_0() {
     Companion_instance = this;
   }
@@ -864,6 +915,30 @@
       new Companion_0();
     return Companion_instance;
   }
+  function AbstractList() {
+    Companion_getInstance();
+    AbstractCollection.call(this);
+  }
+  AbstractList.prototype.iterator_0_k$ = function () {
+    return new IteratorImpl(this);
+  };
+  AbstractList.prototype.equals = function (other) {
+    if (other === this)
+      return true;
+    if (!(!(other == null) ? isInterface(other, List) : false))
+      return false;
+    else {
+    }
+    return Companion_getInstance().orderedEquals_tuq55s_k$(this, other);
+  };
+  AbstractList.prototype.hashCode = function () {
+    return Companion_getInstance().orderedHashCode_dxd51x_k$(this);
+  };
+  AbstractList.$metadata$ = {
+    simpleName: 'AbstractList',
+    kind: 'class',
+    interfaces: [List]
+  };
   function toString($this, o) {
     return o === $this ? '(this Map)' : toString_0(o);
   }
@@ -1492,6 +1567,33 @@
   function addAll_0(_this_, elements) {
     return _this_.addAll_dxd4eo_k$(asList(elements));
   }
+  function asReversed(_this_) {
+    return new ReversedListReadOnly(_this_);
+  }
+  function ReversedListReadOnly(delegate) {
+    AbstractList.call(this);
+    this._delegate = delegate;
+  }
+  ReversedListReadOnly.prototype._get_size__0_k$ = function () {
+    return this._delegate._get_size__0_k$();
+  };
+  ReversedListReadOnly.prototype.get_ha5a7z_k$ = function (index) {
+    return this._delegate.get_ha5a7z_k$(reverseElementIndex(this, index));
+  };
+  ReversedListReadOnly.$metadata$ = {
+    simpleName: 'ReversedListReadOnly',
+    kind: 'class',
+    interfaces: []
+  };
+  function reverseElementIndex(_this_, index) {
+    var tmp;
+    if (0 <= index ? index <= _get_lastIndex__0(_this_) : false) {
+      tmp = _get_lastIndex__0(_this_) - index | 0;
+    } else {
+      throw IndexOutOfBoundsException_init_$Create$('' + 'Element index ' + index + ' must be in range [' + numberRangeToNumber(0, _get_lastIndex__0(_this_)) + '].');
+    }
+    return tmp;
+  }
   function Sequence() {
   }
   Sequence.$metadata$ = {
@@ -1818,146 +1920,11 @@
        while (inductionVariable < length);
     return isNegative_0 ? result : result.unaryMinus_0_k$();
   }
-  function padStart(_this_, length, padChar) {
-    return toString_1(padStart_0(isCharSequence(_this_) ? _this_ : THROW_CCE(), length, padChar));
-  }
-  function _get_lastIndex__1(_this_) {
-    return charSequenceLength(_this_) - 1 | 0;
-  }
-  function indexOf_0(_this_, string, startIndex, ignoreCase) {
-    var tmp;
-    var tmp_0;
-    if (ignoreCase) {
-      tmp_0 = true;
-    } else {
-      tmp_0 = !(typeof _this_ === 'string');
-    }
-    if (tmp_0) {
-      var tmp_1 = charSequenceLength(_this_);
-      tmp = indexOf$default_0(_this_, string, startIndex, tmp_1, ignoreCase, false, 16, null);
-    } else {
-      {
-        var tmp$ret$1;
-        $l$block_0: {
-          var tmp0_nativeIndexOf_0 = _this_;
-          var tmp$ret$0;
-          $l$block: {
-            tmp$ret$0 = tmp0_nativeIndexOf_0;
-            break $l$block;
-          }
-          tmp$ret$1 = tmp$ret$0.indexOf(string, startIndex);
-          break $l$block_0;
-        }
-        tmp = tmp$ret$1;
-      }
-    }
-    return tmp;
-  }
-  function indexOf$default(_this_, string, startIndex, ignoreCase, $mask0, $handler) {
-    if (!(($mask0 & 2) === 0))
-      startIndex = 0;
-    if (!(($mask0 & 4) === 0))
-      ignoreCase = false;
-    return indexOf_0(_this_, string, startIndex, ignoreCase);
+  function lines(_this_) {
+    return toList_0(lineSequence(_this_));
   }
   function lineSequence(_this_) {
     return splitToSequence$default(_this_, ['\r\n', '\n', '\r'], false, 0, 6, null);
-  }
-  function requireNonNegativeLimit(limit) {
-    var tmp0_require_0 = limit >= 0;
-    {
-    }
-    var tmp;
-    if (!tmp0_require_0) {
-      var tmp$ret$0;
-      $l$block: {
-        tmp$ret$0 = '' + 'Limit must be non-negative, but was ' + limit;
-        break $l$block;
-      }
-      var message_2 = tmp$ret$0;
-      throw IllegalArgumentException_init_$Create$(toString_1(message_2));
-    }return tmp;
-  }
-  function _get_indices_(_this_) {
-    return numberRangeToNumber(0, charSequenceLength(_this_) - 1 | 0);
-  }
-  function regionMatchesImpl(_this_, thisOffset, other, otherOffset, length, ignoreCase) {
-    if (((otherOffset < 0 ? true : thisOffset < 0) ? true : thisOffset > (charSequenceLength(_this_) - length | 0)) ? true : otherOffset > (charSequenceLength(other) - length | 0)) {
-      return false;
-    }var inductionVariable = 0;
-    if (inductionVariable < length)
-      do {
-        var index = inductionVariable;
-        inductionVariable = inductionVariable + 1 | 0;
-        if (!equals(charSequenceGet(_this_, thisOffset + index | 0), charSequenceGet(other, otherOffset + index | 0), ignoreCase))
-          return false;
-      }
-       while (inductionVariable < length);
-    return true;
-  }
-  function padStart_0(_this_, length, padChar) {
-    if (length < 0)
-      throw IllegalArgumentException_init_$Create$('' + 'Desired length ' + length + ' is less than zero.');
-    if (length <= charSequenceLength(_this_))
-      return charSequenceSubSequence(_this_, 0, charSequenceLength(_this_));
-    var sb = StringBuilder_init_$Create$(length);
-    var inductionVariable = 1;
-    var last_0 = length - charSequenceLength(_this_) | 0;
-    if (inductionVariable <= last_0)
-      do {
-        var i = inductionVariable;
-        inductionVariable = inductionVariable + 1 | 0;
-        sb.append_wi8o78_k$(padChar);
-        Unit_getInstance();
-      }
-       while (!(i === last_0));
-    sb.append_v1o70a_k$(_this_);
-    Unit_getInstance();
-    return sb;
-  }
-  function indexOf_1(_this_, other, startIndex, endIndex, ignoreCase, last_0) {
-    var indices = !last_0 ? numberRangeToNumber(coerceAtLeast(startIndex, 0), coerceAtMost(endIndex, charSequenceLength(_this_))) : downTo(coerceAtMost(startIndex, _get_lastIndex__1(_this_)), coerceAtLeast(endIndex, 0));
-    var tmp;
-    if (typeof _this_ === 'string') {
-      tmp = typeof other === 'string';
-    } else {
-      {
-        tmp = false;
-      }
-    }
-    if (tmp) {
-      var inductionVariable = indices._first_0;
-      var last_1 = indices._last;
-      var step = indices._step_1;
-      if ((step > 0 ? inductionVariable <= last_1 : false) ? true : step < 0 ? last_1 <= inductionVariable : false)
-        do {
-          var index = inductionVariable;
-          inductionVariable = inductionVariable + step | 0;
-          if (regionMatches(other, 0, _this_, index, charSequenceLength(other), ignoreCase))
-            return index;
-        }
-         while (!(index === last_1));
-    } else {
-      {
-        var inductionVariable_0 = indices._first_0;
-        var last_2 = indices._last;
-        var step_0 = indices._step_1;
-        if ((step_0 > 0 ? inductionVariable_0 <= last_2 : false) ? true : step_0 < 0 ? last_2 <= inductionVariable_0 : false)
-          do {
-            var index_0 = inductionVariable_0;
-            inductionVariable_0 = inductionVariable_0 + step_0 | 0;
-            if (regionMatchesImpl(other, 0, _this_, index_0, charSequenceLength(other), ignoreCase))
-              return index_0;
-          }
-           while (!(index_0 === last_2));
-      }
-    }
-    return -1;
-  }
-  function indexOf$default_0(_this_, other, startIndex, endIndex, ignoreCase, last_0, $mask0, $handler) {
-    if (!(($mask0 & 16) === 0))
-      last_0 = false;
-    return indexOf_1(_this_, other, startIndex, endIndex, ignoreCase, last_0);
   }
   function splitToSequence(_this_, delimiters, ignoreCase, limit) {
     var tmp = rangesDelimitedBy$default(_this_, delimiters, 0, ignoreCase, limit, 2, null);
@@ -1986,6 +1953,21 @@
     if (!(($mask0 & 8) === 0))
       limit = 0;
     return rangesDelimitedBy(_this_, delimiters, startIndex, ignoreCase, limit);
+  }
+  function requireNonNegativeLimit(limit) {
+    var tmp0_require_0 = limit >= 0;
+    {
+    }
+    var tmp;
+    if (!tmp0_require_0) {
+      var tmp$ret$0;
+      $l$block: {
+        tmp$ret$0 = '' + 'Limit must be non-negative, but was ' + limit;
+        break $l$block;
+      }
+      var message_2 = tmp$ret$0;
+      throw IllegalArgumentException_init_$Create$(toString_1(message_2));
+    }return tmp;
   }
   function calcNext($this) {
     if ($this._nextSearchIndex < 0) {
@@ -2033,7 +2015,7 @@
   function _no_name_provided__3(this$0) {
     this._this$0_2 = this$0;
     this._nextState = -1;
-    this._currentStartIndex = coerceIn_0(this._this$0_2._startIndex, 0, charSequenceLength(this._this$0_2._input));
+    this._currentStartIndex = coerceIn(this._this$0_2._startIndex, 0, charSequenceLength(this._this$0_2._input));
     this._nextSearchIndex = this._currentStartIndex;
     this._nextItem = null;
     this._counter = 0;
@@ -2153,6 +2135,45 @@
     }
     return null;
   }
+  function _get_lastIndex__1(_this_) {
+    return charSequenceLength(_this_) - 1 | 0;
+  }
+  function indexOf_0(_this_, string, startIndex, ignoreCase) {
+    var tmp;
+    var tmp_0;
+    if (ignoreCase) {
+      tmp_0 = true;
+    } else {
+      tmp_0 = !(typeof _this_ === 'string');
+    }
+    if (tmp_0) {
+      var tmp_1 = charSequenceLength(_this_);
+      tmp = indexOf$default_0(_this_, string, startIndex, tmp_1, ignoreCase, false, 16, null);
+    } else {
+      {
+        var tmp$ret$1;
+        $l$block_0: {
+          var tmp0_nativeIndexOf_0 = _this_;
+          var tmp$ret$0;
+          $l$block: {
+            tmp$ret$0 = tmp0_nativeIndexOf_0;
+            break $l$block;
+          }
+          tmp$ret$1 = tmp$ret$0.indexOf(string, startIndex);
+          break $l$block_0;
+        }
+        tmp = tmp$ret$1;
+      }
+    }
+    return tmp;
+  }
+  function indexOf$default(_this_, string, startIndex, ignoreCase, $mask0, $handler) {
+    if (!(($mask0 & 2) === 0))
+      startIndex = 0;
+    if (!(($mask0 & 4) === 0))
+      ignoreCase = false;
+    return indexOf_0(_this_, string, startIndex, ignoreCase);
+  }
   function lastIndexOf(_this_, string, startIndex, ignoreCase) {
     var tmp;
     var tmp_0;
@@ -2187,6 +2208,90 @@
     if (!(($mask0 & 4) === 0))
       ignoreCase = false;
     return lastIndexOf(_this_, string, startIndex, ignoreCase);
+  }
+  function regionMatchesImpl(_this_, thisOffset, other, otherOffset, length, ignoreCase) {
+    if (((otherOffset < 0 ? true : thisOffset < 0) ? true : thisOffset > (charSequenceLength(_this_) - length | 0)) ? true : otherOffset > (charSequenceLength(other) - length | 0)) {
+      return false;
+    }var inductionVariable = 0;
+    if (inductionVariable < length)
+      do {
+        var index = inductionVariable;
+        inductionVariable = inductionVariable + 1 | 0;
+        if (!equals(charSequenceGet(_this_, thisOffset + index | 0), charSequenceGet(other, otherOffset + index | 0), ignoreCase))
+          return false;
+      }
+       while (inductionVariable < length);
+    return true;
+  }
+  function indexOf_1(_this_, other, startIndex, endIndex, ignoreCase, last_0) {
+    var indices = !last_0 ? numberRangeToNumber(coerceAtLeast(startIndex, 0), coerceAtMost(endIndex, charSequenceLength(_this_))) : downTo(coerceAtMost(startIndex, _get_lastIndex__1(_this_)), coerceAtLeast(endIndex, 0));
+    var tmp;
+    if (typeof _this_ === 'string') {
+      tmp = typeof other === 'string';
+    } else {
+      {
+        tmp = false;
+      }
+    }
+    if (tmp) {
+      var inductionVariable = indices._first_0;
+      var last_1 = indices._last;
+      var step = indices._step_1;
+      if ((step > 0 ? inductionVariable <= last_1 : false) ? true : step < 0 ? last_1 <= inductionVariable : false)
+        do {
+          var index = inductionVariable;
+          inductionVariable = inductionVariable + step | 0;
+          if (regionMatches(other, 0, _this_, index, charSequenceLength(other), ignoreCase))
+            return index;
+        }
+         while (!(index === last_1));
+    } else {
+      {
+        var inductionVariable_0 = indices._first_0;
+        var last_2 = indices._last;
+        var step_0 = indices._step_1;
+        if ((step_0 > 0 ? inductionVariable_0 <= last_2 : false) ? true : step_0 < 0 ? last_2 <= inductionVariable_0 : false)
+          do {
+            var index_0 = inductionVariable_0;
+            inductionVariable_0 = inductionVariable_0 + step_0 | 0;
+            if (regionMatchesImpl(other, 0, _this_, index_0, charSequenceLength(other), ignoreCase))
+              return index_0;
+          }
+           while (!(index_0 === last_2));
+      }
+    }
+    return -1;
+  }
+  function indexOf$default_0(_this_, other, startIndex, endIndex, ignoreCase, last_0, $mask0, $handler) {
+    if (!(($mask0 & 16) === 0))
+      last_0 = false;
+    return indexOf_1(_this_, other, startIndex, endIndex, ignoreCase, last_0);
+  }
+  function padStart(_this_, length, padChar) {
+    return toString_1(padStart_0(isCharSequence(_this_) ? _this_ : THROW_CCE(), length, padChar));
+  }
+  function _get_indices_(_this_) {
+    return numberRangeToNumber(0, charSequenceLength(_this_) - 1 | 0);
+  }
+  function padStart_0(_this_, length, padChar) {
+    if (length < 0)
+      throw IllegalArgumentException_init_$Create$('' + 'Desired length ' + length + ' is less than zero.');
+    if (length <= charSequenceLength(_this_))
+      return charSequenceSubSequence(_this_, 0, charSequenceLength(_this_));
+    var sb = StringBuilder_init_$Create$(length);
+    var inductionVariable = 1;
+    var last_0 = length - charSequenceLength(_this_) | 0;
+    if (inductionVariable <= last_0)
+      do {
+        var i = inductionVariable;
+        inductionVariable = inductionVariable + 1 | 0;
+        sb.append_wi8o78_k$(padChar);
+        Unit_getInstance();
+      }
+       while (!(i === last_0));
+    sb.append_v1o70a_k$(_this_);
+    Unit_getInstance();
+    return sb;
   }
   function substring_0(_this_, range) {
     var tmp$ret$1;
@@ -2402,7 +2507,7 @@
       tmp = durationOfNanos(millisToNanos(resultMillis).plus_wiekkq_k$(otherNanoRemainder));
     } else {
       {
-        tmp = durationOfMillis(coerceIn(resultMillis, new Long(1, -1073741824), new Long(-1, 1073741823)));
+        tmp = durationOfMillis(coerceIn_0(resultMillis, new Long(1, -1073741824), new Long(-1, 1073741823)));
       }
     }
     return tmp;
@@ -2782,7 +2887,7 @@
       tmp = durationOfNanos(millisToNanos(millis));
     } else {
       {
-        tmp = durationOfMillis(coerceIn(millis, new Long(1, -1073741824), new Long(-1, 1073741823)));
+        tmp = durationOfMillis(coerceIn_0(millis, new Long(1, -1073741824), new Long(-1, 1073741823)));
       }
     }
     return tmp;
@@ -2872,12 +2977,6 @@
     this._value = value;
     this._duration = duration;
   }
-  TimedValue.prototype.component1_0_k$ = function () {
-    return this._value;
-  };
-  TimedValue.prototype.component2_jukv7u_k$ = function () {
-    return this._duration;
-  };
   TimedValue.prototype.toString = function () {
     return '' + 'TimedValue(value=' + this._value + ', duration=' + new Duration(this._duration) + ')';
   };
@@ -3582,6 +3681,9 @@
     kind: 'interface',
     interfaces: []
   };
+  function listOf_0(element) {
+    return arrayListOf([element]);
+  }
   function arrayCopy_0(source, destination, destinationOffset, startIndex, endIndex) {
     Companion_getInstance().checkRangeIndexes_zd700_k$(startIndex, endIndex, source.length);
     var rangeSize = endIndex - startIndex | 0;
@@ -3620,9 +3722,6 @@
            while (0 <= inductionVariable_0);
       }
     }
-  }
-  function listOf_0(element) {
-    return arrayListOf([element]);
   }
   function collectionsSort(list, comparator) {
     if (list._get_size__0_k$() <= 1)
@@ -3731,25 +3830,25 @@
     kind: 'class',
     interfaces: [MutableCollection]
   };
-  function IteratorImpl($outer) {
-    this._$this = $outer;
-    this._index = 0;
+  function IteratorImpl_0($outer) {
+    this._$this_0 = $outer;
+    this._index_0 = 0;
     this._last_1 = -1;
   }
-  IteratorImpl.prototype.hasNext_0_k$ = function () {
-    return this._index < this._$this._get_size__0_k$();
+  IteratorImpl_0.prototype.hasNext_0_k$ = function () {
+    return this._index_0 < this._$this_0._get_size__0_k$();
   };
-  IteratorImpl.prototype.next_0_k$ = function () {
+  IteratorImpl_0.prototype.next_0_k$ = function () {
     if (!this.hasNext_0_k$())
       throw NoSuchElementException_init_$Create$();
     var tmp = this;
     var tmp0_this = this;
-    var tmp1 = tmp0_this._index;
-    tmp0_this._index = tmp1 + 1 | 0;
+    var tmp1 = tmp0_this._index_0;
+    tmp0_this._index_0 = tmp1 + 1 | 0;
     tmp._last_1 = tmp1;
-    return this._$this.get_ha5a7z_k$(this._last_1);
+    return this._$this_0.get_ha5a7z_k$(this._last_1);
   };
-  IteratorImpl.$metadata$ = {
+  IteratorImpl_0.$metadata$ = {
     simpleName: 'IteratorImpl',
     kind: 'class',
     interfaces: [MutableIterator]
@@ -3770,7 +3869,7 @@
     return true;
   };
   AbstractMutableList.prototype.iterator_0_k$ = function () {
-    return new IteratorImpl(this);
+    return new IteratorImpl_0(this);
   };
   AbstractMutableList.prototype.contains_2bq_k$ = function (element) {
     return this.indexOf_2bq_k$(element) >= 0;
@@ -4326,7 +4425,7 @@
     interfaces: []
   };
   function EntrySet($outer) {
-    this._$this_0 = $outer;
+    this._$this_1 = $outer;
     AbstractEntrySet.call(this);
   }
   EntrySet.prototype.add_qbahou_k$ = function (element) {
@@ -4336,13 +4435,13 @@
     return this.add_qbahou_k$((!(element == null) ? isInterface(element, MutableEntry) : false) ? element : THROW_CCE());
   };
   EntrySet.prototype.containsEntry_4v0zae_k$ = function (element) {
-    return this._$this_0.containsEntry_7gsh9e_k$(element);
+    return this._$this_1.containsEntry_7gsh9e_k$(element);
   };
   EntrySet.prototype.iterator_0_k$ = function () {
-    return this._$this_0._internalMap.iterator_0_k$();
+    return this._$this_1._internalMap.iterator_0_k$();
   };
   EntrySet.prototype._get_size__0_k$ = function () {
-    return this._$this_0._get_size__0_k$();
+    return this._$this_1._get_size__0_k$();
   };
   EntrySet.$metadata$ = {
     simpleName: 'EntrySet',
@@ -4644,10 +4743,10 @@
     interfaces: [MutableIterable]
   };
   function EntryIterator($outer) {
-    this._$this_1 = $outer;
+    this._$this_2 = $outer;
     this._last_2 = null;
     this._next_1 = null;
-    this._next_1 = this._$this_1._$this_3._head;
+    this._next_1 = this._$this_2._$this_4._head;
   }
   EntryIterator.prototype.hasNext_0_k$ = function () {
     return !(this._next_1 === null);
@@ -4666,7 +4765,7 @@
       var tmp_0;
       var tmp$ret$0;
       $l$block: {
-        tmp$ret$0 = !(tmp0_takeIf_0 === this._$this_1._$this_3._head);
+        tmp$ret$0 = !(tmp0_takeIf_0 === this._$this_2._$this_4._head);
         break $l$block;
       }
       if (tmp$ret$0) {
@@ -4688,13 +4787,13 @@
     interfaces: [MutableIterator]
   };
   function ChainEntry($outer, key, value) {
-    this._$this_2 = $outer;
+    this._$this_3 = $outer;
     SimpleEntry.call(this, key, value);
     this._next_2 = null;
     this._prev = null;
   }
   ChainEntry.prototype.setValue_2c7_k$ = function (newValue) {
-    this._$this_2.checkIsMutable_sv8swh_k$();
+    this._$this_3.checkIsMutable_sv8swh_k$();
     return SimpleEntry.prototype.setValue_2c7_k$.call(this, newValue);
   };
   ChainEntry.$metadata$ = {
@@ -4703,7 +4802,7 @@
     interfaces: []
   };
   function EntrySet_0($outer) {
-    this._$this_3 = $outer;
+    this._$this_4 = $outer;
     AbstractEntrySet.call(this);
   }
   EntrySet_0.prototype.add_qbahou_k$ = function (element) {
@@ -4713,16 +4812,16 @@
     return this.add_qbahou_k$((!(element == null) ? isInterface(element, MutableEntry) : false) ? element : THROW_CCE());
   };
   EntrySet_0.prototype.containsEntry_4v0zae_k$ = function (element) {
-    return this._$this_3.containsEntry_7gsh9e_k$(element);
+    return this._$this_4.containsEntry_7gsh9e_k$(element);
   };
   EntrySet_0.prototype.iterator_0_k$ = function () {
     return new EntryIterator(this);
   };
   EntrySet_0.prototype._get_size__0_k$ = function () {
-    return this._$this_3._get_size__0_k$();
+    return this._$this_4._get_size__0_k$();
   };
   EntrySet_0.prototype.checkIsMutable_sv8swh_k$ = function () {
-    return this._$this_3.checkIsMutable_sv8swh_k$();
+    return this._$this_4.checkIsMutable_sv8swh_k$();
   };
   EntrySet_0.$metadata$ = {
     simpleName: 'EntrySet',
@@ -7386,20 +7485,20 @@
   }
   function _no_name_provided__30($array) {
     this._$array = $array;
-    this._index_0 = 0;
+    this._index_1 = 0;
   }
   _no_name_provided__30.prototype.hasNext_0_k$ = function () {
-    return !(this._index_0 === this._$array.length);
+    return !(this._index_1 === this._$array.length);
   };
   _no_name_provided__30.prototype.next_0_k$ = function () {
     var tmp;
-    if (!(this._index_0 === this._$array.length)) {
+    if (!(this._index_1 === this._$array.length)) {
       var tmp0_this = this;
-      var tmp1 = tmp0_this._index_0;
-      tmp0_this._index_0 = tmp1 + 1 | 0;
+      var tmp1 = tmp0_this._index_1;
+      tmp0_this._index_1 = tmp1 + 1 | 0;
       tmp = this._$array[tmp1];
     } else {
-      throw NoSuchElementException_init_$Create$_0('' + this._index_0);
+      throw NoSuchElementException_init_$Create$_0('' + this._index_1);
     }
     return tmp;
   };
@@ -8957,6 +9056,24 @@
     kind: 'class',
     interfaces: []
   };
+  function NullPointerException_init_$Init$($this) {
+    RuntimeException_init_$Init$($this);
+    NullPointerException.call($this);
+    return $this;
+  }
+  function NullPointerException_init_$Create$() {
+    var tmp = NullPointerException_init_$Init$(Object.create(NullPointerException.prototype));
+    captureStack(tmp, NullPointerException_init_$Create$);
+    return tmp;
+  }
+  function NullPointerException() {
+    captureStack(this, NullPointerException);
+  }
+  NullPointerException.$metadata$ = {
+    simpleName: 'NullPointerException',
+    kind: 'class',
+    interfaces: []
+  };
   function UnsupportedOperationException_init_$Init$($this) {
     RuntimeException_init_$Init$($this);
     UnsupportedOperationException.call($this);
@@ -9000,24 +9117,6 @@
   }
   ArithmeticException.$metadata$ = {
     simpleName: 'ArithmeticException',
-    kind: 'class',
-    interfaces: []
-  };
-  function NullPointerException_init_$Init$($this) {
-    RuntimeException_init_$Init$($this);
-    NullPointerException.call($this);
-    return $this;
-  }
-  function NullPointerException_init_$Create$() {
-    var tmp = NullPointerException_init_$Init$(Object.create(NullPointerException.prototype));
-    captureStack(tmp, NullPointerException_init_$Create$);
-    return tmp;
-  }
-  function NullPointerException() {
-    captureStack(this, NullPointerException);
-  }
-  NullPointerException.$metadata$ = {
-    simpleName: 'NullPointerException',
     kind: 'class',
     interfaces: []
   };
@@ -9438,26 +9537,26 @@
   };
   function Section(source, index, length) {
     this._source = source;
-    this._index_1 = index;
+    this._index_2 = index;
     this._length = length;
     var sourceBounds = this._source._get_bounds__0_k$();
     {
       var containsLower = sourceBounds._get_first__0_k$();
       var containsUpper = sourceBounds._get_last__0_k$();
-      var containsArg = this._index_1;
+      var containsArg = this._index_2;
       var tmp0_require_0 = containsLower <= containsArg ? containsArg <= containsUpper : false;
       {
       }
       if (!tmp0_require_0) {
         var tmp$ret$0;
         $l$block: {
-          tmp$ret$0 = '' + 'Section index (' + this._index_1 + ") must be within content's bounds (0.." + this._source._content_0.length + ')';
+          tmp$ret$0 = '' + 'Section index (' + this._index_2 + ") must be within content's bounds (0.." + this._source._content_0.length + ')';
           break $l$block;
         }
         var message_1 = tmp$ret$0;
         throw IllegalArgumentException_init_$Create$(toString_1(message_1));
       }}
-    var end = this._index_1 + this._length | 0;
+    var end = this._index_2 + this._length | 0;
     {
       var containsLower_0 = sourceBounds._get_first__0_k$();
       var tmp1_require_0 = end <= sourceBounds._get_last__0_k$() ? containsLower_0 <= end : false;
@@ -9489,7 +9588,7 @@
           } else {
             var tmp$ret$2;
             $l$block_1: {
-              tmp$ret$2 = this._index_1 > item_4._range._get_last__0_k$();
+              tmp$ret$2 = this._index_2 > item_4._range._get_last__0_k$();
               break $l$block_1;
             }
             if (!tmp$ret$2) {
@@ -9510,7 +9609,7 @@
         var item_3 = tmp0_iterator_2.next_0_k$();
         var tmp$ret$4;
         $l$block_3: {
-          tmp$ret$4 = (this._index_1 + this._length | 0) > item_3._range._get_first__0_k$();
+          tmp$ret$4 = (this._index_2 + this._length | 0) > item_3._range._get_first__0_k$();
           break $l$block_3;
         }
         if (!tmp$ret$4)
@@ -9526,14 +9625,14 @@
     tmp._lines = tmp$ret$5;
   }
   Section.prototype._get_range__0_k$ = function () {
-    return numberRangeToNumber(this._index_1, this._index_1 + this._length | 0);
+    return numberRangeToNumber(this._index_2, this._index_2 + this._length | 0);
   };
   Section.prototype._get_substring__0_k$ = function () {
     var tmp$ret$1;
     $l$block_0: {
       var tmp0_substring_0 = this._source._content_0;
-      var tmp1_substring_0 = this._index_1;
-      var tmp2_substring_0 = this._index_1 + this._length | 0;
+      var tmp1_substring_0 = this._index_2;
+      var tmp2_substring_0 = this._index_2 + this._length | 0;
       var tmp$ret$0;
       $l$block: {
         tmp$ret$0 = tmp0_substring_0;
@@ -9580,11 +9679,11 @@
     return new Section(this._source, start, end - start | 0);
   };
   Section.prototype.toString = function () {
-    return '' + '(' + this._source._name_0 + ':' + this._get_firstLine__0_k$()._lineNumber + ':' + (this._index_1 - this._get_firstLine__0_k$()._range._get_first__0_k$() | 0) + ')';
+    return '' + '(' + this._source._name_0 + ':' + this._get_firstLine__0_k$()._lineNumber + ':' + (this._index_2 - this._get_firstLine__0_k$()._range._get_first__0_k$() | 0) + ')';
   };
   Section.prototype.hashCode = function () {
     var result = this._source.hashCode();
-    result = imul(result, 31) + this._index_1 | 0;
+    result = imul(result, 31) + this._index_2 | 0;
     result = imul(result, 31) + this._length | 0;
     return result;
   };
@@ -9598,7 +9697,7 @@
     var tmp0_other_with_cast = other instanceof Section ? other : THROW_CCE();
     if (!this._source.equals(tmp0_other_with_cast._source))
       return false;
-    if (!(this._index_1 === tmp0_other_with_cast._index_1))
+    if (!(this._index_2 === tmp0_other_with_cast._index_2))
       return false;
     if (!(this._length === tmp0_other_with_cast._length))
       return false;
@@ -10374,9 +10473,9 @@
     return LexerMatcherWithPredicate_init_$Init$(m, Object.create(LexerMatcherWithPredicate.prototype));
   }
   function CollectingContext($outer, collection) {
-    this._$this_4 = $outer;
+    this._$this_5 = $outer;
     this._collection = collection;
-    this._$$delegate_0_0 = this._$this_4;
+    this._$$delegate_0_0 = this._$this_5;
   }
   CollectingContext.prototype.hasNext_0_k$ = function () {
     return this._$$delegate_0_0.hasNext_0_k$();
@@ -10403,7 +10502,7 @@
     return this._$$delegate_0_0.peekString_ha5a7z_k$(length);
   };
   CollectingContext.prototype._get_index__0_k$ = function () {
-    return this._$$delegate_0_0._index_2;
+    return this._$$delegate_0_0._index_3;
   };
   CollectingContext.prototype._get_source__0_k$ = function () {
     return this._$$delegate_0_0._source_0;
@@ -10541,19 +10640,19 @@
     return doMatch(_this_, $this, ctx, eat);
   }
   function ContextImpl($outer, source, output_0) {
-    this._$this_5 = $outer;
+    this._$this_6 = $outer;
     this._source_0 = source;
     this._output = output_0;
     this._reader = new StringReader(this._source_0._content_0);
     this._read = 0;
-    this._index_2 = 0;
+    this._index_3 = 0;
     this._curr = new Char(65535);
   }
   ContextImpl.prototype._get_source__0_k$ = function () {
     return this._source_0;
   };
   ContextImpl.prototype._get_index__0_k$ = function () {
-    return this._index_2;
+    return this._index_3;
   };
   ContextImpl.prototype.peek_0_k$ = function () {
     this._reader.mark_majfzk_k$(1);
@@ -10636,8 +10735,8 @@
     tmp0_this._read = tmp1 + 1 | 0;
     Unit_getInstance();
     var tmp2_this = this;
-    var tmp3 = tmp2_this._index_2;
-    tmp2_this._index_2 = tmp3 + 1 | 0;
+    var tmp3 = tmp2_this._index_3;
+    tmp2_this._index_3 = tmp3 + 1 | 0;
     Unit_getInstance();
     this._curr = c;
     return c;
@@ -10692,7 +10791,7 @@
       {
       }
       {
-        doParse(this._$this_5, this, new CollectingContext(this, tmp0_also_0));
+        doParse(this._$this_6, this, new CollectingContext(this, tmp0_also_0));
       }
       tmp$ret$1 = tmp0_also_0;
       break $l$block_0;
@@ -10882,23 +10981,23 @@
     return left;
   }
   function ContextImpl_0($outer, source, tokens, grammar) {
-    this._$this_6 = $outer;
+    this._$this_7 = $outer;
     this._source_1 = source;
     this._grammar = grammar;
     this._tokens = toMutableList(tokens);
-    this._index_3 = 0;
+    this._index_4 = 0;
   }
   ContextImpl_0.prototype._set_index__majfzk_k$ = function (_set___) {
-    this._index_3 = _set___;
+    this._index_4 = _set___;
   };
   ContextImpl_0.prototype._get_index__0_k$ = function () {
-    return this._index_3;
+    return this._index_4;
   };
   ContextImpl_0.prototype._get_eof__0_k$ = function () {
-    return this._index_3 === this._tokens._get_size__0_k$();
+    return this._index_4 === this._tokens._get_size__0_k$();
   };
   ContextImpl_0.prototype._get_last__0_k$ = function () {
-    return this._tokens.get_ha5a7z_k$(this._index_3 - 1 | 0);
+    return this._tokens.get_ha5a7z_k$(this._index_4 - 1 | 0);
   };
   ContextImpl_0.prototype.parseExpression_ha5a7z_k$ = function (precedence) {
     return parseExpr(this, this._grammar, precedence);
@@ -10907,8 +11006,8 @@
     if (this._get_eof__0_k$())
       throw new SyntaxException('Expected token but reached end of file', this._get_last__0_k$()._section);
     var tmp0_this = this;
-    var tmp1 = tmp0_this._index_3;
-    tmp0_this._index_3 = tmp1 + 1 | 0;
+    var tmp1 = tmp0_this._index_4;
+    tmp0_this._index_4 = tmp1 + 1 | 0;
     return this._tokens.get_ha5a7z_k$(tmp1);
   };
   ContextImpl_0.prototype.eat_2c5_k$ = function (type) {
@@ -10927,7 +11026,7 @@
     }return shouldEat;
   };
   ContextImpl_0.prototype.peek_ha5a7z_k$ = function (distance) {
-    return this._tokens.get_ha5a7z_k$(this._index_3 + distance | 0);
+    return this._tokens.get_ha5a7z_k$(this._index_4 + distance | 0);
   };
   ContextImpl_0.prototype.nextIs_2c5_k$ = function (type) {
     var tmp;
@@ -10978,13 +11077,13 @@
       break $l$block;
     }
     var list = tmp$ret$0;
-    var lastIndex = this._index_3;
+    var lastIndex = this._index_4;
     while (!this._get_eof__0_k$() ? !this.nextIsAny_80qlpp_k$(type.slice()) : false) {
       var tmp0_plusAssign_0 = this.eat_0_k$();
       list.add_2bq_k$(tmp0_plusAssign_0);
       Unit_getInstance();
     }
-    this._index_3 = lastIndex;
+    this._index_4 = lastIndex;
     return list;
   };
   ContextImpl_0.prototype.skipUntil_a8x97o_k$ = function (type) {
@@ -16408,10 +16507,11 @@
     kind: 'class',
     interfaces: []
   };
-  function CompiledNode(instructions, jumpLabels) {
+  function CompiledNode(instructions, jumpLabels, sectionLabels) {
     Companion_getInstance_22();
     this._instructions = instructions;
     this._jumpLabels = jumpLabels;
+    this._sectionLabels = sectionLabels;
   }
   CompiledNode.prototype.serializeTo_vy2nus_k$ = function (buffer) {
     buffer.writeInt_ha5a7z_k$(this._instructions._get_size__0_k$());
@@ -16440,6 +16540,13 @@
       var label = tmp1_iterator.next_0_k$();
       label.serializeTo_vy2nus_k$(buffer);
     }
+    buffer.writeInt_ha5a7z_k$(this._sectionLabels._get_size__0_k$());
+    Unit_getInstance();
+    var tmp2_iterator = this._sectionLabels.iterator_0_k$();
+    while (tmp2_iterator.hasNext_0_k$()) {
+      var label_0 = tmp2_iterator.next_0_k$();
+      label_0.serializeTo_vy2nus_k$(buffer);
+    }
   };
   CompiledNode.prototype.resolveLabel_ha5a7z_k$ = function (code) {
     var tmp$ret$0;
@@ -16466,11 +16573,12 @@
     return this._jumpLabels.get_ha5a7z_k$(indexOf_2)._at;
   };
   CompiledNode.prototype.toString = function () {
-    return '' + 'CompiledNode(instructions=' + this._instructions + ', jumpLabels=' + this._jumpLabels + ')';
+    return '' + 'CompiledNode(instructions=' + this._instructions + ', jumpLabels=' + this._jumpLabels + ', sectionLabels=' + this._sectionLabels + ')';
   };
   CompiledNode.prototype.hashCode = function () {
     var result = hashCode(this._instructions);
     result = imul(result, 31) + hashCode(this._jumpLabels) | 0;
+    result = imul(result, 31) + hashCode(this._sectionLabels) | 0;
     return result;
   };
   CompiledNode.prototype.equals = function (other) {
@@ -16484,6 +16592,8 @@
     if (!equals_0(this._instructions, tmp0_other_with_cast._instructions))
       return false;
     if (!equals_0(this._jumpLabels, tmp0_other_with_cast._jumpLabels))
+      return false;
+    if (!equals_0(this._sectionLabels, tmp0_other_with_cast._sectionLabels))
       return false;
     return true;
   };
@@ -16572,25 +16682,23 @@
       new Companion_25();
     return Companion_instance_24;
   }
-  function CompiledSection(pathConst, nameConst, index, length) {
+  function CompiledSection(nameConst, line, column) {
     Companion_getInstance_24();
-    this._pathConst = pathConst;
     this._nameConst_1 = nameConst;
-    this._index_4 = index;
-    this._length_1 = length;
+    this._line = line;
+    this._column = column;
   }
   CompiledSection.prototype.serializeTo_vy2nus_k$ = function (buffer) {
-    buffer.writeInt_ha5a7z_k$(this._pathConst).writeInt_ha5a7z_k$(this._nameConst_1).writeInt_ha5a7z_k$(this._index_4).writeInt_ha5a7z_k$(this._length_1);
+    buffer.writeInt_ha5a7z_k$(this._nameConst_1).writeInt_ha5a7z_k$(this._line).writeInt_ha5a7z_k$(this._column);
     Unit_getInstance();
   };
   CompiledSection.prototype.toString = function () {
-    return '' + 'CompiledSection(pathConst=' + this._pathConst + ', nameConst=' + this._nameConst_1 + ', index=' + this._index_4 + ', length=' + this._length_1 + ')';
+    return '' + 'CompiledSection(nameConst=' + this._nameConst_1 + ', line=' + this._line + ', column=' + this._column + ')';
   };
   CompiledSection.prototype.hashCode = function () {
-    var result = this._pathConst;
-    result = imul(result, 31) + this._nameConst_1 | 0;
-    result = imul(result, 31) + this._index_4 | 0;
-    result = imul(result, 31) + this._length_1 | 0;
+    var result = this._nameConst_1;
+    result = imul(result, 31) + this._line | 0;
+    result = imul(result, 31) + this._column | 0;
     return result;
   };
   CompiledSection.prototype.equals = function (other) {
@@ -16601,13 +16709,11 @@
     else {
     }
     var tmp0_other_with_cast = other instanceof CompiledSection ? other : THROW_CCE();
-    if (!(this._pathConst === tmp0_other_with_cast._pathConst))
-      return false;
     if (!(this._nameConst_1 === tmp0_other_with_cast._nameConst_1))
       return false;
-    if (!(this._index_4 === tmp0_other_with_cast._index_4))
+    if (!(this._line === tmp0_other_with_cast._line))
       return false;
-    if (!(this._length_1 === tmp0_other_with_cast._length_1))
+    if (!(this._column === tmp0_other_with_cast._column))
       return false;
     return true;
   };
@@ -16630,12 +16736,13 @@
       new Companion_26();
     return Companion_instance_25;
   }
-  function CompiledSource(longPool, stringPool, functionParameters, functions, nodes) {
+  function CompiledSource(longPool, stringPool, functionParameters, functions, sections, nodes) {
     Companion_getInstance_25();
     this._longPool = longPool;
     this._stringPool = stringPool;
     this._functionParameters = functionParameters;
     this._functions = functions;
+    this._sections = sections;
     this._nodes = nodes;
   }
   CompiledSource.prototype.serializeTo_vy2nus_k$ = function (buffer) {
@@ -16676,11 +16783,18 @@
       var function_0 = tmp4_iterator.next_0_k$();
       function_0.serializeTo_vy2nus_k$(buffer);
     }
+    buffer.writeInt_ha5a7z_k$(this._sections._get_size__0_k$());
+    Unit_getInstance();
+    var tmp5_iterator = this._sections.iterator_0_k$();
+    while (tmp5_iterator.hasNext_0_k$()) {
+      var section_0 = tmp5_iterator.next_0_k$();
+      section_0.serializeTo_vy2nus_k$(buffer);
+    }
     buffer.writeInt_ha5a7z_k$(this._nodes._get_size__0_k$());
     Unit_getInstance();
-    var tmp5_iterator = this._nodes.iterator_0_k$();
-    while (tmp5_iterator.hasNext_0_k$()) {
-      var node = tmp5_iterator.next_0_k$();
+    var tmp6_iterator = this._nodes.iterator_0_k$();
+    while (tmp6_iterator.hasNext_0_k$()) {
+      var node = tmp6_iterator.next_0_k$();
       node.serializeTo_vy2nus_k$(buffer);
     }
   };
@@ -16711,13 +16825,14 @@
     return tmp;
   };
   CompiledSource.prototype.toString = function () {
-    return '' + 'CompiledSource(longPool=' + this._longPool + ', stringPool=' + this._stringPool + ', functionParameters=' + this._functionParameters + ', functions=' + this._functions + ', nodes=' + this._nodes + ')';
+    return '' + 'CompiledSource(longPool=' + this._longPool + ', stringPool=' + this._stringPool + ', functionParameters=' + this._functionParameters + ', functions=' + this._functions + ', sections=' + this._sections + ', nodes=' + this._nodes + ')';
   };
   CompiledSource.prototype.hashCode = function () {
     var result = hashCode(this._longPool);
     result = imul(result, 31) + hashCode(this._stringPool) | 0;
     result = imul(result, 31) + hashCode(this._functionParameters) | 0;
     result = imul(result, 31) + hashCode(this._functions) | 0;
+    result = imul(result, 31) + hashCode(this._sections) | 0;
     result = imul(result, 31) + hashCode(this._nodes) | 0;
     return result;
   };
@@ -16736,6 +16851,8 @@
     if (!equals_0(this._functionParameters, tmp0_other_with_cast._functionParameters))
       return false;
     if (!equals_0(this._functions, tmp0_other_with_cast._functions))
+      return false;
+    if (!equals_0(this._sections, tmp0_other_with_cast._sections))
       return false;
     if (!equals_0(this._nodes, tmp0_other_with_cast._nodes))
       return false;
@@ -16793,6 +16910,62 @@
   };
   JumpLabel.$metadata$ = {
     simpleName: 'JumpLabel',
+    kind: 'class',
+    interfaces: [Serializable_0]
+  };
+  function Companion_28() {
+    Companion_instance_27 = this;
+  }
+  Companion_28.$metadata$ = {
+    simpleName: 'Companion',
+    kind: 'object',
+    interfaces: [Deserializer]
+  };
+  var Companion_instance_27;
+  function Companion_getInstance_27() {
+    if (Companion_instance_27 == null)
+      new Companion_28();
+    return Companion_instance_27;
+  }
+  function SectionLabel(length, index) {
+    Companion_getInstance_27();
+    this._length_1 = length;
+    this._index_5 = index;
+  }
+  SectionLabel.prototype.serializeTo_vy2nus_k$ = function (buffer) {
+    buffer.writeInt_ha5a7z_k$(this._length_1).writeInt_ha5a7z_k$(this._index_5);
+    Unit_getInstance();
+  };
+  SectionLabel.prototype.component1_0_k$ = function () {
+    return this._length_1;
+  };
+  SectionLabel.prototype.component2_0_k$ = function () {
+    return this._index_5;
+  };
+  SectionLabel.prototype.toString = function () {
+    return '' + 'SectionLabel(length=' + this._length_1 + ', index=' + this._index_5 + ')';
+  };
+  SectionLabel.prototype.hashCode = function () {
+    var result = this._length_1;
+    result = imul(result, 31) + this._index_5 | 0;
+    return result;
+  };
+  SectionLabel.prototype.equals = function (other) {
+    if (this === other)
+      return true;
+    if (!(other instanceof SectionLabel))
+      return false;
+    else {
+    }
+    var tmp0_other_with_cast = other instanceof SectionLabel ? other : THROW_CCE();
+    if (!(this._length_1 === tmp0_other_with_cast._length_1))
+      return false;
+    if (!(this._index_5 === tmp0_other_with_cast._index_5))
+      return false;
+    return true;
+  };
+  SectionLabel.$metadata$ = {
+    simpleName: 'SectionLabel',
     kind: 'class',
     interfaces: [Serializable_0]
   };
@@ -17463,19 +17636,19 @@
     kind: 'class',
     interfaces: []
   };
-  function Companion_28() {
-    Companion_instance_27 = this;
+  function Companion_29() {
+    Companion_instance_28 = this;
   }
-  Companion_28.$metadata$ = {
+  Companion_29.$metadata$ = {
     simpleName: 'Companion',
     kind: 'object',
     interfaces: [Deserializer]
   };
-  var Companion_instance_27;
-  function Companion_getInstance_27() {
-    if (Companion_instance_27 == null)
-      new Companion_28();
-    return Companion_instance_27;
+  var Companion_instance_28;
+  function Companion_getInstance_28() {
+    if (Companion_instance_28 == null)
+      new Companion_29();
+    return Companion_instance_28;
   }
   function Opcode_PARAMETERLESS_getInstance() {
     Opcode_initEntries();
@@ -17718,7 +17891,7 @@
     return ParameterlessCode_BINARY_RANGE_instance;
   }
   function Insn() {
-    Companion_getInstance_27();
+    Companion_getInstance_28();
   }
   Insn.prototype.toString = function () {
     var tmp0_elvis_lhs = getKClassFromExpression_0(this)._get_simpleName__0_k$();
@@ -18573,25 +18746,33 @@
     writeU24(_this_, first_1 >>> 12 | second & 4095);
     Unit_getInstance();
   }
-  function Companion_29() {
-    Companion_instance_28 = this;
+  function generateSectionLabel($this, lastSectionId) {
+    var currSectionInsn = $this._instructions_0._get_size__0_k$();
+    if ($this._lastSectionInsn < currSectionInsn) {
+      var length = currSectionInsn - $this._lastSectionInsn | 0;
+      $this._sectionLabels_0.add_2bq_k$(new SectionLabel(length, lastSectionId));
+      Unit_getInstance();
+      $this._lastSectionInsn = currSectionInsn;
+    }}
+  function Companion_30() {
+    Companion_instance_29 = this;
     this._I24_MAX = 8388607;
     this._I24_MIN = -8388608;
     this._i24Range = numberRangeToNumber(-8388608, 8388607);
   }
-  Companion_29.$metadata$ = {
+  Companion_30.$metadata$ = {
     simpleName: 'Companion',
     kind: 'object',
     interfaces: []
   };
-  var Companion_instance_28;
-  function Companion_getInstance_28() {
-    if (Companion_instance_28 == null)
-      new Companion_29();
-    return Companion_instance_28;
+  var Companion_instance_29;
+  function Companion_getInstance_29() {
+    if (Companion_instance_29 == null)
+      new Companion_30();
+    return Companion_instance_29;
   }
   function CompiledNodeBuilder(parent, nodeId) {
-    Companion_getInstance_28();
+    Companion_getInstance_29();
     this._parent = parent;
     this._nodeId = nodeId;
     var tmp = this;
@@ -18614,7 +18795,7 @@
       tmp$ret$2 = ArrayList_init_$Create$();
       break $l$block_1;
     }
-    tmp_1._sectionLabels = tmp$ret$2;
+    tmp_1._sectionLabels_0 = tmp$ret$2;
     var tmp_2 = this;
     var tmp$ret$3;
     $l$block_2: {
@@ -18622,6 +18803,7 @@
       break $l$block_2;
     }
     tmp_2._sectionStack = tmp$ret$3;
+    this._lastSectionInsn = 0;
     this._nextLabelCode = 0;
   }
   CompiledNodeBuilder.prototype.nextLabel_0_k$ = function () {
@@ -18669,7 +18851,7 @@
   CompiledNodeBuilder.prototype.pushDecimalInsn_okcceq_k$ = function (value) {
     var tmp;
     if (value % 1 === 0.0) {
-      var progression = Companion_getInstance_28()._i24Range;
+      var progression = Companion_getInstance_29()._i24Range;
       var containsLower = progression._get_first__0_k$();
       var containsUpper = progression._get_last__0_k$();
       var containsArg = numberToInt(value);
@@ -18704,7 +18886,7 @@
       break $l$block;
     }
     if (tmp$ret$0.equals(new Long(0, 0))) {
-      var progression = Companion_getInstance_28()._i24Range;
+      var progression = Companion_getInstance_29()._i24Range;
       var containsLower = progression._get_first__0_k$();
       var containsUpper = progression._get_last__0_k$();
       var containsArg = value.toInt_0_k$();
@@ -19094,18 +19276,32 @@
     }
   };
   CompiledNodeBuilder.prototype.markSectionStart_majfzk_k$ = function (sectionId) {
+    var last_0 = lastOrNull(this._sectionStack);
     this._sectionStack.add_2bq_k$(sectionId);
     Unit_getInstance();
+    if (!(last_0 == null))
+      generateSectionLabel(this, last_0);
   };
   CompiledNodeBuilder.prototype.markSectionStart_5xjolv_k$ = function (section_0) {
     this.markSectionStart_majfzk_k$(this._parent.sectionId_3dwx6q_k$(section_0));
   };
   CompiledNodeBuilder.prototype.markSectionEnd_sv8swh_k$ = function () {
-    removeLast(this._sectionStack);
-    Unit_getInstance();
+    var last_0 = removeLast(this._sectionStack);
+    generateSectionLabel(this, last_0);
   };
   CompiledNodeBuilder.prototype.build_0_k$ = function () {
-    return new CompiledNode(toList(this._instructions_0), toList(this._jumpLabels_0));
+    var tmp$ret$0;
+    $l$block: {
+      var tmp0_isNotEmpty_0 = this._sectionStack;
+      tmp$ret$0 = !tmp0_isNotEmpty_0.isEmpty_0_k$();
+      break $l$block;
+    }
+    if (tmp$ret$0) {
+      println('This should not have happened.');
+      generateSectionLabel(this, last(this._sectionStack));
+    } else {
+    }
+    return new CompiledNode(toList(this._instructions_0), toList(this._jumpLabels_0), toList(this._sectionLabels_0));
   };
   CompiledNodeBuilder.$metadata$ = {
     simpleName: 'CompiledNodeBuilder',
@@ -19133,7 +19329,7 @@
       tmp$ret$2 = ArrayList_init_$Create$();
       break $l$block_1;
     }
-    tmp_1._sections = tmp$ret$2;
+    tmp_1._sections_0 = tmp$ret$2;
     var tmp_2 = this;
     var tmp$ret$3;
     $l$block_2: {
@@ -19168,15 +19364,14 @@
   };
   CompiledSourceBuilder.prototype.sectionId_3dwx6q_k$ = function (section_0) {
     var source = section_0._source;
-    var pathConst = this.constantId_6wfw3l_k$(source._path);
     var nameConst = this.constantId_6wfw3l_k$(source._name_0);
-    var value = new CompiledSection(pathConst, nameConst, section_0._index_1, section_0._length);
-    var indexOf_2 = this._sections.indexOf_2bq_k$(value);
+    var value = new CompiledSection(nameConst, section_0._get_firstLine__0_k$()._lineNumber, section_0._index_2 - section_0._get_firstLine__0_k$()._range._get_first__0_k$() | 0);
+    var indexOf_2 = this._sections_0.indexOf_2bq_k$(value);
     if (!(indexOf_2 === -1))
       return indexOf_2;
-    this._sections.add_2bq_k$(value);
+    this._sections_0.add_2bq_k$(value);
     Unit_getInstance();
-    return _get_lastIndex__0(this._sections);
+    return _get_lastIndex__0(this._sections_0);
   };
   CompiledSourceBuilder.prototype.constantId_6wfw3l_k$ = function (value) {
     var indexOf_2 = this._stringPool_0.indexOf_2bq_k$(value);
@@ -19236,6 +19431,7 @@
     var tmp_0 = toList(this._stringPool_0);
     var tmp_1 = toList(this._functionParameters_0);
     var tmp_2 = toList(this._functions_0);
+    var tmp_3 = toList(this._sections_0);
     var tmp$ret$2;
     $l$block_1: {
       var tmp0_map_0 = this._nodeBuilders;
@@ -19259,12 +19455,27 @@
       tmp$ret$2 = tmp$ret$1;
       break $l$block_1;
     }
-    return new CompiledSource(tmp, tmp_0, tmp_1, tmp_2, tmp$ret$2);
+    return new CompiledSource(tmp, tmp_0, tmp_1, tmp_2, tmp_3, tmp$ret$2);
   };
   CompiledSourceBuilder.$metadata$ = {
     simpleName: 'CompiledSourceBuilder',
     kind: 'class',
     interfaces: []
+  };
+  function LinNullPointerException() {
+    NullPointerException_init_$Init$(this);
+    captureStack(this, LinNullPointerException);
+  }
+  LinNullPointerException.prototype._get_exceptionType__0_k$ = function () {
+    return 'nullPointer';
+  };
+  LinNullPointerException.prototype._get_exceptionDescription__0_k$ = function () {
+    return 'Argument passed is null.';
+  };
+  LinNullPointerException.$metadata$ = {
+    simpleName: 'LinNullPointerException',
+    kind: 'class',
+    interfaces: [LinNativeException]
   };
   function NodeCompiler_init_$Init$(source, $mask0, $marker, $this) {
     if (!(($mask0 & 1) === 0))
@@ -19275,27 +19486,27 @@
   function NodeCompiler_init_$Create$(source, $mask0, $marker) {
     return NodeCompiler_init_$Init$(source, $mask0, $marker, Object.create(NodeCompiler.prototype));
   }
-  function Companion_30() {
-    Companion_instance_29 = this;
+  function Companion_31() {
+    Companion_instance_30 = this;
   }
-  Companion_30.prototype.compile_35k71k_k$ = function (node) {
+  Companion_31.prototype.compile_35k71k_k$ = function (node) {
     var compiler = NodeCompiler_init_$Create$(null, 1, null);
     node.accept_258a0l_k$(compiler);
     return compiler.compiledSource_0_k$();
   };
-  Companion_30.$metadata$ = {
+  Companion_31.$metadata$ = {
     simpleName: 'Companion',
     kind: 'object',
     interfaces: []
   };
-  var Companion_instance_29;
-  function Companion_getInstance_29() {
-    if (Companion_instance_29 == null)
-      new Companion_30();
-    return Companion_instance_29;
+  var Companion_instance_30;
+  function Companion_getInstance_30() {
+    if (Companion_instance_30 == null)
+      new Companion_31();
+    return Companion_instance_30;
   }
   function NodeCompiler(source) {
-    Companion_getInstance_29();
+    Companion_getInstance_30();
     this._source_2 = source;
     this._builder = this._source_2.newNodeBuilder_0_k$();
   }
@@ -20063,6 +20274,47 @@
     simpleName: 'IllegalConstantIndexException',
     kind: 'class',
     interfaces: []
+  };
+  function LinNativeException() {
+  }
+  LinNativeException.$metadata$ = {
+    simpleName: 'LinNativeException',
+    kind: 'interface',
+    interfaces: []
+  };
+  function LinUnsupportedOperationException_init_$Init$(operation, type, $this) {
+    NoSuchElementException_init_$Init$_0('' + "Cannot apply operation '" + operation + "' for type '" + type + "'.", $this);
+    LinUnsupportedOperationException.call($this);
+    return $this;
+  }
+  function LinUnsupportedOperationException_init_$Create$(operation, type) {
+    var tmp = LinUnsupportedOperationException_init_$Init$(operation, type, Object.create(LinUnsupportedOperationException.prototype));
+    captureStack(tmp, LinUnsupportedOperationException_init_$Create$);
+    return tmp;
+  }
+  function LinUnsupportedOperationException_init_$Init$_0(operation, leftType, rightType, $this) {
+    NoSuchElementException_init_$Init$_0('' + "Cannot apply operation '" + operation + "' for types '" + leftType + "' and '" + rightType + "'.", $this);
+    LinUnsupportedOperationException.call($this);
+    return $this;
+  }
+  function LinUnsupportedOperationException_init_$Create$_0(operation, leftType, rightType) {
+    var tmp = LinUnsupportedOperationException_init_$Init$_0(operation, leftType, rightType, Object.create(LinUnsupportedOperationException.prototype));
+    captureStack(tmp, LinUnsupportedOperationException_init_$Create$_0);
+    return tmp;
+  }
+  LinUnsupportedOperationException.prototype._get_exceptionType__0_k$ = function () {
+    return 'unsupportedOperation';
+  };
+  LinUnsupportedOperationException.prototype._get_exceptionDescription__0_k$ = function () {
+    return ensureNotNull(this.message);
+  };
+  function LinUnsupportedOperationException() {
+    captureStack(this, LinUnsupportedOperationException);
+  }
+  LinUnsupportedOperationException.$metadata$ = {
+    simpleName: 'LinUnsupportedOperationException',
+    kind: 'class',
+    interfaces: [LinNativeException]
   };
   function StackUnderflowException(message) {
     NoSuchElementException_init_$Init$_0(message, this);
@@ -24840,8 +25092,11 @@
         Unit_getInstance();
       }
        while (ctx.match_2c5_k$(TokenType_COMMA_getInstance()));
+      matchAll(ctx, [TokenType_NL_getInstance()]);
+      Unit_getInstance();
       ctx.eat_2c5_k$(TokenType_R_BRACE_getInstance());
       Unit_getInstance();
+      maybeIgnoreNL(ctx);
     }return new ObjectExpr(contents, token._section);
   };
   ObjectParser.prototype.parse_e86nu8_k$ = function (ctx, token) {
@@ -25306,7 +25561,7 @@
     return UnaryOperationType_TRUTH_instance;
   }
   function LAnyException(value) {
-    RuntimeException_init_$Init$_0('Object thrown from Lin', this);
+    RuntimeException_init_$Init$_0('' + 'Object thrown from Lin: ' + value, this);
     this._value_23 = value;
     captureStack(this, LAnyException);
   }
@@ -25350,7 +25605,7 @@
     this._$it = $it;
   }
   _no_name_provided__133.prototype.invoke_ec99pl_k$ = function (_anonymous_parameter_0_, _anonymous_parameter_1_) {
-    return Companion_getInstance_30().of_wi7j7l_k$(this._$it.hasNext_0_k$());
+    return Companion_getInstance_31().of_wi7j7l_k$(this._$it.hasNext_0_k$());
   };
   _no_name_provided__133.prototype.invoke_osx4an_k$ = function (p1, p2) {
     var tmp = (p1 == null ? true : p1 instanceof LAny) ? p1 : THROW_CCE();
@@ -25410,7 +25665,7 @@
       break $l$block_2;
     }
     if (tmp$ret$0) {
-      throw new LAnyException(Exceptions_getInstance().nullPointer_0_k$());
+      throw new LinNullPointerException();
     } else {
     }
     return LTrue_getInstance();
@@ -25433,28 +25688,28 @@
     } else {
       if (tmp0_subject instanceof LObject) {
         var tmp_0 = asSequence_0(thisValue._value_29);
-        tmp = map(tmp_0, _no_name_provided_$factory_127(Companion_getInstance_30())).iterator_0_k$();
+        tmp = map(tmp_0, _no_name_provided_$factory_127(Companion_getInstance_31())).iterator_0_k$();
       } else {
         if (tmp0_subject instanceof LRange) {
           var tmp_1 = asSequence(thisValue._value_30);
           tmp = map(tmp_1, _no_name_provided_$factory_128()).iterator_0_k$();
         } else {
           if (tmp0_subject == null) {
-            throw new LAnyException(Exceptions_getInstance().nullPointer_0_k$());
+            throw new LinNullPointerException();
           } else {
             {
-              throw new LAnyException(Exceptions_getInstance().unsupportedOperation_jg38oy_k$('iterator', thisValue._get_linType__0_k$()));
+              throw LinUnsupportedOperationException_init_$Create$('iterator', thisValue._get_linType__0_k$());
             }
           }
         }
       }
     }
     var it = tmp;
-    var tmp_2 = Companion_getInstance_31();
+    var tmp_2 = Companion_getInstance_32();
     var tmp_3 = new LString('__hasNext');
-    var tmp_4 = to(tmp_3, LNativeFunction_init_$Create$(null, _no_name_provided_$factory_129(it), 1, null));
+    var tmp_4 = to(tmp_3, new LNativeFunction('hasNext', _no_name_provided_$factory_129(it)));
     var tmp_5 = new LString('__next');
-    return tmp_2.of_b37sri_k$([tmp_4, to(tmp_5, LNativeFunction_init_$Create$(null, _no_name_provided_$factory_130(it), 1, null))]);
+    return tmp_2.of_b37sri_k$([tmp_4, to(tmp_5, new LNativeFunction('next', _no_name_provided_$factory_130(it)))]);
   };
   _no_name_provided__136.prototype.invoke_osx4an_k$ = function (p1, p2) {
     var tmp = (p1 == null ? true : p1 instanceof LAny) ? p1 : THROW_CCE();
@@ -25467,9 +25722,9 @@
   function LinRuntime() {
     LinRuntime_instance = this;
     var tmp = this;
-    tmp._ensureNotNull = LNativeFunction_init_$Create$(null, _no_name_provided_$factory_125(), 1, null);
+    tmp._ensureNotNull = new LNativeFunction('ensureNotNull', _no_name_provided_$factory_125());
     var tmp_0 = this;
-    tmp_0._iterator_0 = LNativeFunction_init_$Create$(null, _no_name_provided_$factory_126(), 1, null);
+    tmp_0._iterator_0 = new LNativeFunction('iterator', _no_name_provided_$factory_126());
   }
   LinRuntime.$metadata$ = {
     simpleName: 'LinRuntime',
@@ -25548,36 +25803,74 @@
     interfaces: []
   };
   function Events($outer) {
-    this._$this_7 = $outer;
+    this._$this_8 = $outer;
   }
   Events.prototype.pushLayer_eyv8jr_k$ = function (layer) {
-    var tmp0_this = this._$this_7;
+    var tmp0_this = this._$this_8;
     {
       var tmp0_plusAssign_0 = tmp0_this._layerStack;
-      var tmp1_plusAssign_0 = this._$this_7._currentLayer;
+      var tmp1_plusAssign_0 = this._$this_8._currentLayer;
       tmp0_plusAssign_0.add_2bq_k$(tmp1_plusAssign_0);
       Unit_getInstance();
     }
-    this._$this_7._currentLayer = layer;
+    this._$this_8._currentLayer = layer;
   };
   Events.prototype.replaceLayer_eyv8jr_k$ = function (layer) {
-    this._$this_7._currentLayer = layer;
+    this._$this_8._currentLayer = layer;
   };
   Events.prototype.onReturn_cbcuu9_k$ = function (value) {
-    var layer = removeLastOrNull(this._$this_7._layerStack);
+    var layer = removeLastOrNull(this._$this_8._layerStack);
     if (layer == null) {
-      this._$this_7._result = new Returned(value);
+      this._$this_8._result = new Returned(value);
       return Unit_getInstance();
-    }this._$this_7._currentLayer = layer;
+    }this._$this_8._currentLayer = layer;
     layer.onReturn_cbcuu9_k$(value);
   };
   Events.prototype.onThrow_cbcuu9_k$ = function (value) {
-    var layer = removeLastOrNull(this._$this_7._layerStack);
+    var layer = removeLastOrNull(this._$this_8._layerStack);
     if (layer == null) {
-      this._$this_7._result = new Thrown(value);
+      this._$this_8._result = new Thrown(value);
       return Unit_getInstance();
-    }this._$this_7._currentLayer = layer;
+    }this._$this_8._currentLayer = layer;
     layer.onThrow_cbcuu9_k$(value);
+  };
+  Events.prototype.stackTrace_0_k$ = function () {
+    var tmp$ret$2;
+    $l$block_1: {
+      var tmp0_mapNotNull_0 = asReversed(plus(this._$this_8._layerStack, this._$this_8._currentLayer));
+      var tmp$ret$1;
+      $l$block_0: {
+        var tmp0_mapNotNullTo_0_1 = ArrayList_init_$Create$();
+        {
+          var tmp0_iterator_1_2 = tmp0_mapNotNull_0.iterator_0_k$();
+          while (tmp0_iterator_1_2.hasNext_0_k$()) {
+            var element_2_3 = tmp0_iterator_1_2.next_0_k$();
+            {
+              var tmp0_safe_receiver_2_4_4 = element_2_3.trace_0_k$();
+              if (tmp0_safe_receiver_2_4_4 == null)
+                null;
+              else {
+                var tmp$ret$0;
+                $l$block: {
+                  {
+                  }
+                  tmp0_mapNotNullTo_0_1.add_2bq_k$(tmp0_safe_receiver_2_4_4);
+                  tmp$ret$0 = Unit_getInstance();
+                  break $l$block;
+                }
+                Unit_getInstance();
+              }
+              Unit_getInstance();
+            }
+          }
+        }
+        tmp$ret$1 = tmp0_mapNotNullTo_0_1;
+        break $l$block_0;
+      }
+      tmp$ret$2 = tmp$ret$1;
+      break $l$block_1;
+    }
+    return tmp$ret$2;
   };
   Events.$metadata$ = {
     simpleName: 'Events',
@@ -25595,7 +25888,7 @@
     var tmp_0 = this;
     var tmp_1 = new Events(this);
     var tmp_2 = new DefaultMutableScope(scope);
-    tmp_0._currentLayer = DefaultExecutionLayer_init_$Create$(tmp_1, tmp_2, source, null, null, 24, null);
+    tmp_0._currentLayer = DefaultExecutionLayer_init_$Create$(tmp_1, tmp_2, source, '<main>', null, null, 48, null);
     this._result = null;
   }
   LinVirtualMachine.prototype.run_0_k$ = function () {
@@ -25630,6 +25923,60 @@
   };
   LinVirtualMachine.$metadata$ = {
     simpleName: 'LinVirtualMachine',
+    kind: 'class',
+    interfaces: []
+  };
+  function StackTrace_init_$Init$(functionName, sourceName, line, column, $mask0, $marker, $this) {
+    if (!(($mask0 & 2) === 0))
+      sourceName = null;
+    if (!(($mask0 & 4) === 0))
+      line = -1;
+    if (!(($mask0 & 8) === 0))
+      column = -1;
+    StackTrace.call($this, functionName, sourceName, line, column);
+    return $this;
+  }
+  function StackTrace_init_$Create$(functionName, sourceName, line, column, $mask0, $marker) {
+    return StackTrace_init_$Init$(functionName, sourceName, line, column, $mask0, $marker, Object.create(StackTrace.prototype));
+  }
+  function StackTrace(functionName, sourceName, line, column) {
+    this._functionName = functionName;
+    this._sourceName = sourceName;
+    this._line_0 = line;
+    this._column_0 = column;
+  }
+  StackTrace.prototype.toString = function () {
+    if ((this._sourceName == null ? this._line_0 === -1 : false) ? this._column_0 === -1 : false) {
+      return '' + this._functionName + '[Platform]';
+    }return '' + this._functionName + '(' + this._sourceName + ':' + this._line_0 + ':' + this._column_0 + ')';
+  };
+  StackTrace.prototype.hashCode = function () {
+    var result = getStringHashCode(this._functionName);
+    result = imul(result, 31) + (this._sourceName == null ? 0 : getStringHashCode(this._sourceName)) | 0;
+    result = imul(result, 31) + this._line_0 | 0;
+    result = imul(result, 31) + this._column_0 | 0;
+    return result;
+  };
+  StackTrace.prototype.equals = function (other) {
+    if (this === other)
+      return true;
+    if (!(other instanceof StackTrace))
+      return false;
+    else {
+    }
+    var tmp0_other_with_cast = other instanceof StackTrace ? other : THROW_CCE();
+    if (!(this._functionName === tmp0_other_with_cast._functionName))
+      return false;
+    if (!(this._sourceName == tmp0_other_with_cast._sourceName))
+      return false;
+    if (!(this._line_0 === tmp0_other_with_cast._line_0))
+      return false;
+    if (!(this._column_0 === tmp0_other_with_cast._column_0))
+      return false;
+    return true;
+  };
+  StackTrace.$metadata$ = {
+    simpleName: 'StackTrace',
     kind: 'class',
     interfaces: []
   };
@@ -25699,16 +26046,16 @@
     Comparison_LT_instance = new LT();
     Comparison_LTE_instance = new LTE();
   }
-  function DefaultExecutionLayer_init_$Init$(events, scope, source, node, thisValue, $mask0, $marker, $this) {
-    if (!(($mask0 & 8) === 0))
-      node = source._nodes.get_ha5a7z_k$(0);
+  function DefaultExecutionLayer_init_$Init$(events, scope, source, functionName, node, thisValue, $mask0, $marker, $this) {
     if (!(($mask0 & 16) === 0))
+      node = source._nodes.get_ha5a7z_k$(0);
+    if (!(($mask0 & 32) === 0))
       thisValue = null;
-    DefaultExecutionLayer.call($this, events, scope, source, node, thisValue);
+    DefaultExecutionLayer.call($this, events, scope, source, functionName, node, thisValue);
     return $this;
   }
-  function DefaultExecutionLayer_init_$Create$(events, scope, source, node, thisValue, $mask0, $marker) {
-    return DefaultExecutionLayer_init_$Init$(events, scope, source, node, thisValue, $mask0, $marker, Object.create(DefaultExecutionLayer.prototype));
+  function DefaultExecutionLayer_init_$Create$(events, scope, source, functionName, node, thisValue, $mask0, $marker) {
+    return DefaultExecutionLayer_init_$Init$(events, scope, source, functionName, node, thisValue, $mask0, $marker, Object.create(DefaultExecutionLayer.prototype));
   }
   function ExceptionHandler(keepOnStack, jumpOnException, jumpOnEnd) {
     this._keepOnStack = keepOnStack;
@@ -25853,7 +26200,7 @@
     if (!(member == null)) {
       $this._stack.add_2bq_k$(member);
       Unit_getInstance();
-    }$this.onThrow_cbcuu9_k$(Exceptions_getInstance().noElementExists_6wfw3l_k$(name));
+    }$this.onThrow_cbcuu9_k$(Exceptions_getInstance().noElementExists_6u8fct_k$(name, $this._events.stackTrace_0_k$()));
   }
   function handleGetSubscript($this, size) {
     var tmp$ret$2;
@@ -26292,7 +26639,7 @@
       }
     }
     if (tmp_0) {
-      $this._stack.add_2bq_k$(new LArray(toMutableList(plus(left._value_26, right._value_26))));
+      $this._stack.add_2bq_k$(new LArray(toMutableList(plus_0(left._value_26, right._value_26))));
       Unit_getInstance();
       return Unit_getInstance();
     } else {
@@ -26311,7 +26658,7 @@
       return Unit_getInstance();
     } else {
     }
-    $this.onThrow_cbcuu9_k$(Exceptions_getInstance().unsupportedOperation_qn10g3_k$('add', left._get_linType__0_k$(), right._get_linType__0_k$()));
+    throw LinUnsupportedOperationException_init_$Create$_0('add', left._get_linType__0_k$(), right._get_linType__0_k$());
   }
   function handleBinaryDivideOperation($this) {
     var right = popStack($this);
@@ -26330,12 +26677,12 @@
       return Unit_getInstance();
     } else {
     }
-    $this.onThrow_cbcuu9_k$(Exceptions_getInstance().unsupportedOperation_qn10g3_k$('divide', left._get_linType__0_k$(), right._get_linType__0_k$()));
+    throw LinUnsupportedOperationException_init_$Create$_0('divide', left._get_linType__0_k$(), right._get_linType__0_k$());
   }
   function handleBinaryEqualsOperation($this) {
     var right = popStack($this);
     var left = popStack($this);
-    $this._stack.add_2bq_k$(Companion_getInstance_30().ofBoolean_vcj5fe_k$(equals_0(right, left)));
+    $this._stack.add_2bq_k$(Companion_getInstance_31().ofBoolean_vcj5fe_k$(equals_0(right, left)));
     Unit_getInstance();
   }
   function handleBinaryMultiplyOperation($this) {
@@ -26368,12 +26715,12 @@
       return Unit_getInstance();
     } else {
     }
-    $this.onThrow_cbcuu9_k$(Exceptions_getInstance().unsupportedOperation_qn10g3_k$('multiply', left._get_linType__0_k$(), right._get_linType__0_k$()));
+    throw LinUnsupportedOperationException_init_$Create$_0('multiply', left._get_linType__0_k$(), right._get_linType__0_k$());
   }
   function handleBinaryNotEqualsOperation($this) {
     var right = popStack($this);
     var left = popStack($this);
-    $this._stack.add_2bq_k$(Companion_getInstance_30().ofBoolean_vcj5fe_k$(!equals_0(right, left)));
+    $this._stack.add_2bq_k$(Companion_getInstance_31().ofBoolean_vcj5fe_k$(!equals_0(right, left)));
     Unit_getInstance();
   }
   function handleBinaryRangeOperation($this) {
@@ -26393,7 +26740,7 @@
       return Unit_getInstance();
     } else {
     }
-    $this.onThrow_cbcuu9_k$(Exceptions_getInstance().unsupportedOperation_qn10g3_k$('range', left._get_linType__0_k$(), right._get_linType__0_k$()));
+    throw LinUnsupportedOperationException_init_$Create$_0('range', left._get_linType__0_k$(), right._get_linType__0_k$());
   }
   function handleBinaryRemainingOperation($this) {
     var right = popStack($this);
@@ -26412,7 +26759,7 @@
       return Unit_getInstance();
     } else {
     }
-    $this.onThrow_cbcuu9_k$(Exceptions_getInstance().unsupportedOperation_qn10g3_k$('remaining', left._get_linType__0_k$(), right._get_linType__0_k$()));
+    throw LinUnsupportedOperationException_init_$Create$_0('remaining', left._get_linType__0_k$(), right._get_linType__0_k$());
   }
   function handleBinarySubtractOperation($this) {
     var right = popStack($this);
@@ -26431,7 +26778,7 @@
       return Unit_getInstance();
     } else {
     }
-    $this.onThrow_cbcuu9_k$(Exceptions_getInstance().unsupportedOperation_qn10g3_k$('subtract', left._get_linType__0_k$(), right._get_linType__0_k$()));
+    throw LinUnsupportedOperationException_init_$Create$_0('subtract', left._get_linType__0_k$(), right._get_linType__0_k$());
   }
   function handleBinaryComparison($this, comparison) {
     var right = popStack($this);
@@ -26445,7 +26792,7 @@
       }
     }
     if (tmp) {
-      $this._stack.add_2bq_k$(Companion_getInstance_30().ofBoolean_vcj5fe_k$(comparison.toBoolean_ha5a7z_k$(compareTo(left._value_31, right._value_31))));
+      $this._stack.add_2bq_k$(Companion_getInstance_31().ofBoolean_vcj5fe_k$(comparison.toBoolean_ha5a7z_k$(compareTo(left._value_31, right._value_31))));
       Unit_getInstance();
       return Unit_getInstance();
     } else {
@@ -26459,12 +26806,12 @@
       }
     }
     if (tmp_0) {
-      $this._stack.add_2bq_k$(Companion_getInstance_30().ofBoolean_vcj5fe_k$(comparison.toBoolean_ha5a7z_k$(left.compareTo_f8x72b_k$(right))));
+      $this._stack.add_2bq_k$(Companion_getInstance_31().ofBoolean_vcj5fe_k$(comparison.toBoolean_ha5a7z_k$(left.compareTo_f8x72b_k$(right))));
       Unit_getInstance();
       return Unit_getInstance();
     } else {
     }
-    $this.onThrow_cbcuu9_k$(Exceptions_getInstance().unsupportedOperation_qn10g3_k$('comparison', left._get_linType__0_k$(), right._get_linType__0_k$()));
+    throw LinUnsupportedOperationException_init_$Create$_0('comparison', left._get_linType__0_k$(), right._get_linType__0_k$());
   }
   function Comparison(name, ordinal) {
     Enum.call(this, name, ordinal);
@@ -26478,13 +26825,13 @@
     var right = popStack($this);
     var left = popStack($this);
     if (right instanceof LArray) {
-      $this._stack.add_2bq_k$(Companion_getInstance_30().ofBoolean_vcj5fe_k$(right._value_26.contains_2bq_k$(left)));
+      $this._stack.add_2bq_k$(Companion_getInstance_31().ofBoolean_vcj5fe_k$(right._value_26.contains_2bq_k$(left)));
       Unit_getInstance();
       return Unit_getInstance();
     } else {
     }
     if (right instanceof LObject) {
-      var tmp = Companion_getInstance_30();
+      var tmp = Companion_getInstance_31();
       var tmp$ret$1;
       $l$block_0: {
         var tmp0_contains_0 = right._value_29;
@@ -26501,7 +26848,7 @@
       return Unit_getInstance();
     } else {
     }
-    $this.onThrow_cbcuu9_k$(Exceptions_getInstance().unsupportedOperation_qn10g3_k$('in', left._get_linType__0_k$(), right._get_linType__0_k$()));
+    throw LinUnsupportedOperationException_init_$Create$_0('in', left._get_linType__0_k$(), right._get_linType__0_k$());
   }
   function handleUnaryNegativeOperation($this) {
     var target = popStack($this);
@@ -26511,10 +26858,10 @@
       return Unit_getInstance();
     } else {
     }
-    $this.onThrow_cbcuu9_k$(Exceptions_getInstance().unsupportedOperation_jg38oy_k$('negative', target._get_linType__0_k$()));
+    throw LinUnsupportedOperationException_init_$Create$('negative', target._get_linType__0_k$());
   }
   function handleUnaryNotOperation($this) {
-    $this._stack.add_2bq_k$(Companion_getInstance_30().ofBoolean_vcj5fe_k$(!popStack($this).truth_0_k$()));
+    $this._stack.add_2bq_k$(Companion_getInstance_31().ofBoolean_vcj5fe_k$(!popStack($this).truth_0_k$()));
     Unit_getInstance();
   }
   function handleUnaryPositiveOperation($this) {
@@ -26525,10 +26872,10 @@
       return Unit_getInstance();
     } else {
     }
-    $this.onThrow_cbcuu9_k$(Exceptions_getInstance().unsupportedOperation_jg38oy_k$('positive', target._get_linType__0_k$()));
+    throw LinUnsupportedOperationException_init_$Create$('positive', target._get_linType__0_k$());
   }
   function handleUnaryTruthOperation($this) {
-    $this._stack.add_2bq_k$(Companion_getInstance_30().ofBoolean_vcj5fe_k$(popStack($this).truth_0_k$()));
+    $this._stack.add_2bq_k$(Companion_getInstance_31().ofBoolean_vcj5fe_k$(popStack($this).truth_0_k$()));
     Unit_getInstance();
   }
   function invocation($this, thisValue, function_0, args) {
@@ -26538,18 +26885,27 @@
         $this._stack.add_2bq_k$(function_0._block_0(thisValue, args));
         Unit_getInstance();
       } catch ($p) {
-        if ($p instanceof LAnyException) {
-          $this.onThrow_cbcuu9_k$($p._value_23);
-        } else {
-          if ($p instanceof Exception) {
-            {
-              var tmp0_TODO_0 = '' + 'Not yet implemented: ' + thisValue + '.' + function_0 + '(' + joinToString$default_0(args, null, null, null, 0, null, null, 63, null) + ') threw native exception.';
-              throw new NotImplementedError('' + 'An operation is not implemented: ' + tmp0_TODO_0);
-            }
+        if ($p instanceof Exception) {
+          var tmp1_elvis_lhs = function_0._name_11;
+          var tmp = tmp1_elvis_lhs == null ? '<anonymous function>' : tmp1_elvis_lhs;
+          var stackTrace = plus_0(listOf_0(StackTrace_init_$Create$(tmp, null, 0, 0, 14, null)), $this._events.stackTrace_0_k$());
+          var tmp2_subject = $p;
+          var tmp_0;
+          if (tmp2_subject instanceof LAnyException) {
+            tmp_0 = $p._value_23;
           } else {
-            {
-              throw $p;
+            if (isInterface(tmp2_subject, LinNativeException)) {
+              tmp_0 = Exceptions_getInstance().toObject_4oi5pg_k$($p, stackTrace);
+            } else {
+              {
+                tmp_0 = Exceptions_getInstance().fromNative_av6dd1_k$($p, stackTrace);
+              }
             }
+          }
+          $this.onThrow_cbcuu9_k$(tmp_0);
+        } else {
+          {
+            throw $p;
           }
         }
       }
@@ -26560,10 +26916,24 @@
         layer.step_sv8swh_k$();
       } else {
         {
-          $this.onThrow_cbcuu9_k$(Exceptions_getInstance().notAFunction_6wfw3l_k$(function_0._get_linType__0_k$()));
+          $this.onThrow_cbcuu9_k$(Exceptions_getInstance().notAFunction_6u8fct_k$(function_0._get_linType__0_k$(), $this._events.stackTrace_0_k$()));
         }
       }
     }
+  }
+  function findSectionIndex($this, last_0) {
+    var atInsn = 0;
+    var tmp0_iterator = $this._node._sectionLabels.iterator_0_k$();
+    while (tmp0_iterator.hasNext_0_k$()) {
+      var tmp1_loop_parameter = tmp0_iterator.next_0_k$();
+      var length = tmp1_loop_parameter.component1_0_k$();
+      var index = tmp1_loop_parameter.component2_0_k$();
+      if ((atInsn + length | 0) < last_0) {
+        atInsn = atInsn + length | 0;
+        continue;
+      }return index;
+    }
+    return -1;
   }
   function Comparison_GT_getInstance() {
     Comparison_initEntries();
@@ -26581,10 +26951,11 @@
     Comparison_initEntries();
     return Comparison_LTE_instance;
   }
-  function DefaultExecutionLayer(events, scope, source, node, thisValue) {
+  function DefaultExecutionLayer(events, scope, source, functionName, node, thisValue) {
     this._events = events;
     this._scope = scope;
     this._source_3 = source;
+    this._functionName_0 = functionName;
     this._node = node;
     this._thisValue = thisValue;
     this._next_5 = 0;
@@ -26619,175 +26990,177 @@
       var tmp2_elvis_lhs = removeLastOrNull(this._stack);
       this._events.onReturn_cbcuu9_k$(tmp2_elvis_lhs == null ? LNull_getInstance() : tmp2_elvis_lhs);
       return Unit_getInstance();
-    }var tmp3_subject = insn;
-    if (equals_0(tmp3_subject, ArrayInsertInsn_getInstance()))
-      handleArrayInsert(this);
-    else {
-      if (tmp3_subject instanceof AssignInsn)
-        handleAssign(this, insn._nameConst_2);
+    }try {
+      var tmp3_subject = insn;
+      if (equals_0(tmp3_subject, ArrayInsertInsn_getInstance()))
+        handleArrayInsert(this);
       else {
-        if (tmp3_subject instanceof BranchIfInsn)
-          handleBranchIf(this, insn._value_20, insn._labelCode);
+        if (tmp3_subject instanceof AssignInsn)
+          handleAssign(this, insn._nameConst_2);
         else {
-          if (equals_0(tmp3_subject, BreakInsn_getInstance()))
-            handleBreak(this);
+          if (tmp3_subject instanceof BranchIfInsn)
+            handleBranchIf(this, insn._value_20, insn._labelCode);
           else {
-            if (equals_0(tmp3_subject, ContinueInsn_getInstance()))
-              handleContinue(this);
+            if (equals_0(tmp3_subject, BreakInsn_getInstance()))
+              handleBreak(this);
             else {
-              if (tmp3_subject instanceof DeclareVariableInsn)
-                handleDeclareVariable(this, insn._mutable_0, insn._nameConst_3);
+              if (equals_0(tmp3_subject, ContinueInsn_getInstance()))
+                handleContinue(this);
               else {
-                if (equals_0(tmp3_subject, DupInsn_getInstance()))
-                  handleDup(this);
+                if (tmp3_subject instanceof DeclareVariableInsn)
+                  handleDeclareVariable(this, insn._mutable_0, insn._nameConst_3);
                 else {
-                  if (tmp3_subject instanceof GetMemberPropertyInsn)
-                    handleGetMemberProperty(this, insn._nameConst_4);
+                  if (equals_0(tmp3_subject, DupInsn_getInstance()))
+                    handleDup(this);
                   else {
-                    if (tmp3_subject instanceof GetSubscriptInsn)
-                      handleGetSubscript(this, insn._size_1);
+                    if (tmp3_subject instanceof GetMemberPropertyInsn)
+                      handleGetMemberProperty(this, insn._nameConst_4);
                     else {
-                      if (tmp3_subject instanceof GetVariableInsn)
-                        handleGetVariable(this, insn._nameConst_5);
+                      if (tmp3_subject instanceof GetSubscriptInsn)
+                        handleGetSubscript(this, insn._size_1);
                       else {
-                        if (tmp3_subject instanceof InvokeInsn)
-                          handleInvoke(this, insn._size_2);
+                        if (tmp3_subject instanceof GetVariableInsn)
+                          handleGetVariable(this, insn._nameConst_5);
                         else {
-                          if (tmp3_subject instanceof InvokeLocalInsn)
-                            handleInvokeLocal(this, insn._nameConst_6, insn._size_3);
+                          if (tmp3_subject instanceof InvokeInsn)
+                            handleInvoke(this, insn._size_2);
                           else {
-                            if (tmp3_subject instanceof InvokeMemberInsn)
-                              handleInvokeMember(this, insn._nameConst_7, insn._size_4);
+                            if (tmp3_subject instanceof InvokeLocalInsn)
+                              handleInvokeLocal(this, insn._nameConst_6, insn._size_3);
                             else {
-                              if (tmp3_subject instanceof JumpInsn)
-                                handleJump(this, insn._labelCode_0);
+                              if (tmp3_subject instanceof InvokeMemberInsn)
+                                handleInvokeMember(this, insn._nameConst_7, insn._size_4);
                               else {
-                                if (tmp3_subject instanceof LoadDecimalInsn)
-                                  handleLoadDecimal(this, insn._valueConst);
+                                if (tmp3_subject instanceof JumpInsn)
+                                  handleJump(this, insn._labelCode_0);
                                 else {
-                                  if (tmp3_subject instanceof LoadIntegerInsn)
-                                    handleLoadInteger(this, insn._valueConst_0);
+                                  if (tmp3_subject instanceof LoadDecimalInsn)
+                                    handleLoadDecimal(this, insn._valueConst);
                                   else {
-                                    if (tmp3_subject instanceof LoadStringInsn)
-                                      handleLoadString(this, insn._valueConst_1);
+                                    if (tmp3_subject instanceof LoadIntegerInsn)
+                                      handleLoadInteger(this, insn._valueConst_0);
                                     else {
-                                      if (equals_0(tmp3_subject, NewArrayInsn_getInstance()))
-                                        handleNewArray(this);
+                                      if (tmp3_subject instanceof LoadStringInsn)
+                                        handleLoadString(this, insn._valueConst_1);
                                       else {
-                                        if (tmp3_subject instanceof NewFunctionInsn)
-                                          handleNewFunction(this, insn._functionId);
+                                        if (equals_0(tmp3_subject, NewArrayInsn_getInstance()))
+                                          handleNewArray(this);
                                         else {
-                                          if (equals_0(tmp3_subject, NewObjectInsn_getInstance()))
-                                            handleNewObject(this);
+                                          if (tmp3_subject instanceof NewFunctionInsn)
+                                            handleNewFunction(this, insn._functionId);
                                           else {
-                                            if (equals_0(tmp3_subject, ObjectInsertInsn_getInstance()))
-                                              handleObjectInsert(this);
+                                            if (equals_0(tmp3_subject, NewObjectInsn_getInstance()))
+                                              handleNewObject(this);
                                             else {
-                                              if (equals_0(tmp3_subject, PopExceptionHandlingInsn_getInstance()))
-                                                handlePopExceptionHandling(this);
+                                              if (equals_0(tmp3_subject, ObjectInsertInsn_getInstance()))
+                                                handleObjectInsert(this);
                                               else {
-                                                if (equals_0(tmp3_subject, PopInsn_getInstance()))
-                                                  handlePop(this);
+                                                if (equals_0(tmp3_subject, PopExceptionHandlingInsn_getInstance()))
+                                                  handlePopExceptionHandling(this);
                                                 else {
-                                                  if (equals_0(tmp3_subject, PopLoopHandlingInsn_getInstance()))
-                                                    handlePopLoopHandling(this);
+                                                  if (equals_0(tmp3_subject, PopInsn_getInstance()))
+                                                    handlePop(this);
                                                   else {
-                                                    if (equals_0(tmp3_subject, PopScopeInsn_getInstance()))
-                                                      handlePopScope(this);
+                                                    if (equals_0(tmp3_subject, PopLoopHandlingInsn_getInstance()))
+                                                      handlePopLoopHandling(this);
                                                     else {
-                                                      if (tmp3_subject instanceof PushBooleanInsn)
-                                                        handlePushBoolean(this, insn._value_21);
+                                                      if (equals_0(tmp3_subject, PopScopeInsn_getInstance()))
+                                                        handlePopScope(this);
                                                       else {
-                                                        if (tmp3_subject instanceof PushDecimalInsn)
-                                                          handlePushDecimal(this, insn._immediateValue);
+                                                        if (tmp3_subject instanceof PushBooleanInsn)
+                                                          handlePushBoolean(this, insn._value_21);
                                                         else {
-                                                          if (tmp3_subject instanceof PushExceptionHandlingInsn)
-                                                            handlePushExceptionHandling(this, insn._catchLabel, insn._endLabel);
+                                                          if (tmp3_subject instanceof PushDecimalInsn)
+                                                            handlePushDecimal(this, insn._immediateValue);
                                                           else {
-                                                            if (tmp3_subject instanceof PushIntegerInsn)
-                                                              handlePushInteger(this, insn._immediateValue_0);
+                                                            if (tmp3_subject instanceof PushExceptionHandlingInsn)
+                                                              handlePushExceptionHandling(this, insn._catchLabel, insn._endLabel);
                                                             else {
-                                                              if (tmp3_subject instanceof PushLoopHandlingInsn)
-                                                                handlePushLoopHandling(this, insn._breakLabel, insn._continueLabel);
+                                                              if (tmp3_subject instanceof PushIntegerInsn)
+                                                                handlePushInteger(this, insn._immediateValue_0);
                                                               else {
-                                                                if (equals_0(tmp3_subject, PushNullInsn_getInstance()))
-                                                                  handlePushNull(this);
+                                                                if (tmp3_subject instanceof PushLoopHandlingInsn)
+                                                                  handlePushLoopHandling(this, insn._breakLabel, insn._continueLabel);
                                                                 else {
-                                                                  if (equals_0(tmp3_subject, PushScopeInsn_getInstance()))
-                                                                    handlePushScope(this);
+                                                                  if (equals_0(tmp3_subject, PushNullInsn_getInstance()))
+                                                                    handlePushNull(this);
                                                                   else {
-                                                                    if (equals_0(tmp3_subject, PushThisInsn_getInstance()))
-                                                                      handlePushThis(this);
+                                                                    if (equals_0(tmp3_subject, PushScopeInsn_getInstance()))
+                                                                      handlePushScope(this);
                                                                     else {
-                                                                      if (equals_0(tmp3_subject, ReturnInsn_getInstance()))
-                                                                        handleReturn(this);
+                                                                      if (equals_0(tmp3_subject, PushThisInsn_getInstance()))
+                                                                        handlePushThis(this);
                                                                       else {
-                                                                        if (tmp3_subject instanceof SetMemberPropertyInsn)
-                                                                          handleSetMemberProperty(this, insn._nameConst_8);
+                                                                        if (equals_0(tmp3_subject, ReturnInsn_getInstance()))
+                                                                          handleReturn(this);
                                                                         else {
-                                                                          if (tmp3_subject instanceof SetSubscriptInsn)
-                                                                            handleSetSubscript(this, insn._size_5);
+                                                                          if (tmp3_subject instanceof SetMemberPropertyInsn)
+                                                                            handleSetMemberProperty(this, insn._nameConst_8);
                                                                           else {
-                                                                            if (tmp3_subject instanceof SetVariableInsn)
-                                                                              handleSetVariable(this, insn._nameConst_9);
+                                                                            if (tmp3_subject instanceof SetSubscriptInsn)
+                                                                              handleSetSubscript(this, insn._size_5);
                                                                             else {
-                                                                              if (equals_0(tmp3_subject, ThrowInsn_getInstance()))
-                                                                                handleThrow(this);
+                                                                              if (tmp3_subject instanceof SetVariableInsn)
+                                                                                handleSetVariable(this, insn._nameConst_9);
                                                                               else {
-                                                                                if (equals_0(tmp3_subject, TypeofInsn_getInstance()))
-                                                                                  handleTypeof(this);
+                                                                                if (equals_0(tmp3_subject, ThrowInsn_getInstance()))
+                                                                                  handleThrow(this);
                                                                                 else {
-                                                                                  if (equals_0(tmp3_subject, BinaryAddOperationInsn_getInstance()))
-                                                                                    handleBinaryAddOperation(this);
+                                                                                  if (equals_0(tmp3_subject, TypeofInsn_getInstance()))
+                                                                                    handleTypeof(this);
                                                                                   else {
-                                                                                    if (equals_0(tmp3_subject, BinaryDivideOperationInsn_getInstance()))
-                                                                                      handleBinaryDivideOperation(this);
+                                                                                    if (equals_0(tmp3_subject, BinaryAddOperationInsn_getInstance()))
+                                                                                      handleBinaryAddOperation(this);
                                                                                     else {
-                                                                                      if (equals_0(tmp3_subject, BinaryEqualsOperationInsn_getInstance()))
-                                                                                        handleBinaryEqualsOperation(this);
+                                                                                      if (equals_0(tmp3_subject, BinaryDivideOperationInsn_getInstance()))
+                                                                                        handleBinaryDivideOperation(this);
                                                                                       else {
-                                                                                        if (equals_0(tmp3_subject, BinaryGtOperationInsn_getInstance()))
-                                                                                          handleBinaryComparison(this, Comparison_GT_getInstance());
+                                                                                        if (equals_0(tmp3_subject, BinaryEqualsOperationInsn_getInstance()))
+                                                                                          handleBinaryEqualsOperation(this);
                                                                                         else {
-                                                                                          if (equals_0(tmp3_subject, BinaryGteOperationInsn_getInstance()))
-                                                                                            handleBinaryComparison(this, Comparison_GTE_getInstance());
+                                                                                          if (equals_0(tmp3_subject, BinaryGtOperationInsn_getInstance()))
+                                                                                            handleBinaryComparison(this, Comparison_GT_getInstance());
                                                                                           else {
-                                                                                            if (equals_0(tmp3_subject, BinaryInOperationInsn_getInstance()))
-                                                                                              handleBinaryInOperation(this);
+                                                                                            if (equals_0(tmp3_subject, BinaryGteOperationInsn_getInstance()))
+                                                                                              handleBinaryComparison(this, Comparison_GTE_getInstance());
                                                                                             else {
-                                                                                              if (equals_0(tmp3_subject, BinaryLtOperationInsn_getInstance()))
-                                                                                                handleBinaryComparison(this, Comparison_LT_getInstance());
+                                                                                              if (equals_0(tmp3_subject, BinaryInOperationInsn_getInstance()))
+                                                                                                handleBinaryInOperation(this);
                                                                                               else {
-                                                                                                if (equals_0(tmp3_subject, BinaryLteOperationInsn_getInstance()))
-                                                                                                  handleBinaryComparison(this, Comparison_LTE_getInstance());
+                                                                                                if (equals_0(tmp3_subject, BinaryLtOperationInsn_getInstance()))
+                                                                                                  handleBinaryComparison(this, Comparison_LT_getInstance());
                                                                                                 else {
-                                                                                                  if (equals_0(tmp3_subject, BinaryMultiplyOperationInsn_getInstance()))
-                                                                                                    handleBinaryMultiplyOperation(this);
+                                                                                                  if (equals_0(tmp3_subject, BinaryLteOperationInsn_getInstance()))
+                                                                                                    handleBinaryComparison(this, Comparison_LTE_getInstance());
                                                                                                   else {
-                                                                                                    if (equals_0(tmp3_subject, BinaryNotEqualsOperationInsn_getInstance()))
-                                                                                                      handleBinaryNotEqualsOperation(this);
+                                                                                                    if (equals_0(tmp3_subject, BinaryMultiplyOperationInsn_getInstance()))
+                                                                                                      handleBinaryMultiplyOperation(this);
                                                                                                     else {
-                                                                                                      if (equals_0(tmp3_subject, BinaryRangeOperationInsn_getInstance()))
-                                                                                                        handleBinaryRangeOperation(this);
+                                                                                                      if (equals_0(tmp3_subject, BinaryNotEqualsOperationInsn_getInstance()))
+                                                                                                        handleBinaryNotEqualsOperation(this);
                                                                                                       else {
-                                                                                                        if (equals_0(tmp3_subject, BinaryRemainingOperationInsn_getInstance()))
-                                                                                                          handleBinaryRemainingOperation(this);
+                                                                                                        if (equals_0(tmp3_subject, BinaryRangeOperationInsn_getInstance()))
+                                                                                                          handleBinaryRangeOperation(this);
                                                                                                         else {
-                                                                                                          if (equals_0(tmp3_subject, BinarySubtractOperationInsn_getInstance()))
-                                                                                                            handleBinarySubtractOperation(this);
+                                                                                                          if (equals_0(tmp3_subject, BinaryRemainingOperationInsn_getInstance()))
+                                                                                                            handleBinaryRemainingOperation(this);
                                                                                                           else {
-                                                                                                            if (equals_0(tmp3_subject, UnaryNegativeOperationInsn_getInstance()))
-                                                                                                              handleUnaryNegativeOperation(this);
+                                                                                                            if (equals_0(tmp3_subject, BinarySubtractOperationInsn_getInstance()))
+                                                                                                              handleBinarySubtractOperation(this);
                                                                                                             else {
-                                                                                                              if (equals_0(tmp3_subject, UnaryNotOperationInsn_getInstance()))
-                                                                                                                handleUnaryNotOperation(this);
+                                                                                                              if (equals_0(tmp3_subject, UnaryNegativeOperationInsn_getInstance()))
+                                                                                                                handleUnaryNegativeOperation(this);
                                                                                                               else {
-                                                                                                                if (equals_0(tmp3_subject, UnaryPositiveOperationInsn_getInstance()))
-                                                                                                                  handleUnaryPositiveOperation(this);
+                                                                                                                if (equals_0(tmp3_subject, UnaryNotOperationInsn_getInstance()))
+                                                                                                                  handleUnaryNotOperation(this);
                                                                                                                 else {
-                                                                                                                  if (equals_0(tmp3_subject, UnaryTruthOperationInsn_getInstance()))
-                                                                                                                    handleUnaryTruthOperation(this);
+                                                                                                                  if (equals_0(tmp3_subject, UnaryPositiveOperationInsn_getInstance()))
+                                                                                                                    handleUnaryPositiveOperation(this);
                                                                                                                   else {
+                                                                                                                    if (equals_0(tmp3_subject, UnaryTruthOperationInsn_getInstance()))
+                                                                                                                      handleUnaryTruthOperation(this);
+                                                                                                                    else {
+                                                                                                                    }
                                                                                                                   }
                                                                                                                 }
                                                                                                               }
@@ -26843,6 +27216,27 @@
           }
         }
       }
+    } catch ($p) {
+      if ($p instanceof Exception) {
+        var tmp4_subject = $p;
+        var tmp;
+        if (tmp4_subject instanceof LAnyException) {
+          tmp = $p._value_23;
+        } else {
+          if (isInterface(tmp4_subject, LinNativeException)) {
+            tmp = Exceptions_getInstance().toObject_4oi5pg_k$($p, this._events.stackTrace_0_k$());
+          } else {
+            {
+              tmp = Exceptions_getInstance().fromNative_av6dd1_k$($p, this._events.stackTrace_0_k$());
+            }
+          }
+        }
+        this.onThrow_cbcuu9_k$(tmp);
+      } else {
+        {
+          throw $p;
+        }
+      }
     }
   };
   DefaultExecutionLayer.prototype.onReturn_cbcuu9_k$ = function (value) {
@@ -26877,6 +27271,17 @@
     this._stack.add_2bq_k$(value);
     Unit_getInstance();
   };
+  DefaultExecutionLayer.prototype.trace_0_k$ = function () {
+    var tmp0_elvis_lhs = getOrNull(this._source_3._sections, findSectionIndex(this, this._next_5 - 1 | 0));
+    var tmp;
+    if (tmp0_elvis_lhs == null) {
+      return null;
+    } else {
+      tmp = tmp0_elvis_lhs;
+    }
+    var section_0 = tmp;
+    return new StackTrace(this._functionName_0, this._source_3.stringConst_ha5a7z_k$(section_0._nameConst_1), section_0._line, section_0._column);
+  };
   DefaultExecutionLayer.$metadata$ = {
     simpleName: 'DefaultExecutionLayer',
     kind: 'class',
@@ -26885,26 +27290,48 @@
   function Exceptions() {
     Exceptions_instance = this;
   }
-  Exceptions.prototype.create_jg38oy_k$ = function (type, description) {
-    return LObject_init_$Create$_0([to(new LString('errorType'), new LString(type)), to(new LString('description'), new LString(description))]);
+  Exceptions.prototype.create_pji4te_k$ = function (type, description, stackTrace) {
+    var tmp = to(new LString('errorType'), new LString(type));
+    var tmp_0 = to(new LString('description'), new LString(description));
+    var tmp_1 = new LString('stackTrace');
+    var tmp$ret$2;
+    $l$block_1: {
+      var tmp$ret$0;
+      $l$block: {
+        tmp$ret$0 = ArrayList_init_$Create$();
+        break $l$block;
+      }
+      var tmp0_mapTo_0 = tmp$ret$0;
+      var tmp0_iterator_1 = stackTrace.iterator_0_k$();
+      while (tmp0_iterator_1.hasNext_0_k$()) {
+        var item_2 = tmp0_iterator_1.next_0_k$();
+        var tmp$ret$1;
+        $l$block_0: {
+          tmp$ret$1 = new LString(item_2.toString());
+          break $l$block_0;
+        }
+        tmp0_mapTo_0.add_2bq_k$(tmp$ret$1);
+        Unit_getInstance();
+      }
+      tmp$ret$2 = tmp0_mapTo_0;
+      break $l$block_1;
+    }
+    return LObject_init_$Create$_0([tmp, tmp_0, to(tmp_1, new LArray(tmp$ret$2))]);
   };
-  Exceptions.prototype.mismatchedArgs_0_k$ = function () {
-    return this.create_jg38oy_k$('mismatchedArguments', 'Invocation failed due to mismatched arguments.');
+  Exceptions.prototype.mismatchedArgs_6nngis_k$ = function (stackTrace) {
+    return this.create_pji4te_k$('mismatchedArguments', 'Invocation failed due to mismatched arguments.', stackTrace);
   };
-  Exceptions.prototype.notAFunction_6wfw3l_k$ = function (type) {
-    return this.create_jg38oy_k$('notAFunction', '' + "Cannot invoke function for type '" + type + "'.");
+  Exceptions.prototype.notAFunction_6u8fct_k$ = function (type, stackTrace) {
+    return this.create_pji4te_k$('notAFunction', '' + "Cannot invoke function for type '" + type + "'.", stackTrace);
   };
-  Exceptions.prototype.noElementExists_6wfw3l_k$ = function (element) {
-    return this.create_jg38oy_k$('noElementExists', '' + "Element '" + element + "' does not exist.");
+  Exceptions.prototype.noElementExists_6u8fct_k$ = function (element, stackTrace) {
+    return this.create_pji4te_k$('noElementExists', '' + "Element '" + element + "' does not exist.", stackTrace);
   };
-  Exceptions.prototype.unsupportedOperation_qn10g3_k$ = function (operation, leftType, rightType) {
-    return this.create_jg38oy_k$('unsupportedOperation', '' + "Cannot apply operation '" + operation + "' for types '" + leftType + "' and '" + rightType + "'.");
+  Exceptions.prototype.toObject_4oi5pg_k$ = function (e, stackTrace) {
+    return this.create_pji4te_k$(e._get_exceptionType__0_k$(), e._get_exceptionDescription__0_k$(), stackTrace);
   };
-  Exceptions.prototype.unsupportedOperation_jg38oy_k$ = function (operation, type) {
-    return this.create_jg38oy_k$('unsupportedOperation', '' + "Cannot apply operation '" + operation + "' for type '" + type + "'.");
-  };
-  Exceptions.prototype.nullPointer_0_k$ = function () {
-    return this.create_jg38oy_k$('nullPointer', 'Argument passed is null.');
+  Exceptions.prototype.fromNative_av6dd1_k$ = function (e, stackTrace) {
+    return this.create_pji4te_k$('nativeException', e.toString(), stackTrace);
   };
   Exceptions.$metadata$ = {
     simpleName: 'Exceptions',
@@ -26942,7 +27369,7 @@
       } else {
         var tmp$ret$0;
         $l$block: {
-          tmp$ret$0 = new CompiledNode(emptyList(), emptyList());
+          tmp$ret$0 = new CompiledNode(emptyList(), emptyList(), emptyList());
           break $l$block;
         }
         tmp_0 = tmp$ret$0;
@@ -26980,12 +27407,15 @@
         var paramBody = this._function_4._source_4._nodes.get_ha5a7z_k$(parameter._defaultValueNodeId);
         this._resolvedParamName = paramName;
         this._scope_0.declareVariable_5xhc52_k$(paramName, true);
-        this._events_0.pushLayer_eyv8jr_k$(new DefaultExecutionLayer(this._events_0, this._scope_0, this._function_4._source_4, paramBody, this._thisValue_0));
+        var tmp0_elvis_lhs = this._function_4._get_name__0_k$();
+        this._events_0.pushLayer_eyv8jr_k$(new DefaultExecutionLayer(this._events_0, this._scope_0, this._function_4._source_4, tmp0_elvis_lhs == null ? '<anonymous function>' : tmp0_elvis_lhs, paramBody, this._thisValue_0));
         return Unit_getInstance();
-      }this._events_0.onThrow_cbcuu9_k$(Exceptions_getInstance().mismatchedArgs_0_k$());
+      }this._events_0.onThrow_cbcuu9_k$(Exceptions_getInstance().mismatchedArgs_6nngis_k$(this._events_0.stackTrace_0_k$()));
       return Unit_getInstance();
     }
-    this._events_0.replaceLayer_eyv8jr_k$(new DefaultExecutionLayer(this._events_0, new DefaultMutableScope(this._scope_0), this._function_4._source_4, this._body_3, this._thisValue_0));
+    var tmp = new DefaultMutableScope(this._scope_0);
+    var tmp1_elvis_lhs = this._function_4._get_name__0_k$();
+    this._events_0.replaceLayer_eyv8jr_k$(new DefaultExecutionLayer(this._events_0, tmp, this._function_4._source_4, tmp1_elvis_lhs == null ? '<anonymous function>' : tmp1_elvis_lhs, this._body_3, this._thisValue_0));
   };
   FunctionSetupLayer.prototype.onReturn_cbcuu9_k$ = function (value) {
     var tmp0_elvis_lhs = this._resolvedParamName;
@@ -27000,6 +27430,9 @@
   };
   FunctionSetupLayer.prototype.onThrow_cbcuu9_k$ = function (value) {
     this._events_0.onThrow_cbcuu9_k$(value);
+  };
+  FunctionSetupLayer.prototype.trace_0_k$ = function () {
+    return null;
   };
   FunctionSetupLayer.$metadata$ = {
     simpleName: 'FunctionSetupLayer',
@@ -27203,10 +27636,10 @@
     kind: 'class',
     interfaces: []
   };
-  function Companion_31() {
-    Companion_instance_30 = this;
+  function Companion_32() {
+    Companion_instance_31 = this;
   }
-  Companion_31.prototype.of_wi7j7l_k$ = function (value) {
+  Companion_32.prototype.of_wi7j7l_k$ = function (value) {
     var tmp0_subject = value;
     var tmp;
     var tmp_0;
@@ -27264,7 +27697,7 @@
                       var item_2 = tmp0_iterator_1.next_0_k$();
                       var tmp$ret$1;
                       $l$block_0: {
-                        tmp$ret$1 = Companion_getInstance_30().of_wi7j7l_k$(item_2);
+                        tmp$ret$1 = Companion_getInstance_31().of_wi7j7l_k$(item_2);
                         break $l$block_0;
                       }
                       tmp1_mapTo_0.add_2bq_k$(tmp$ret$1);
@@ -27291,7 +27724,7 @@
                         {
                           var tmp$ret$4;
                           $l$block_3: {
-                            tmp$ret$4 = to(Companion_getInstance_30().of_wi7j7l_k$(element_2._get_key__0_k$()), Companion_getInstance_30().of_wi7j7l_k$(element_2._get_value__0_k$()));
+                            tmp$ret$4 = to(Companion_getInstance_31().of_wi7j7l_k$(element_2._get_key__0_k$()), Companion_getInstance_31().of_wi7j7l_k$(element_2._get_value__0_k$()));
                             break $l$block_3;
                           }
                           var tmp0_plusAssign_0_3 = tmp$ret$4;
@@ -27317,25 +27750,25 @@
     }
     return tmp;
   };
-  Companion_31.prototype.ofBoolean_vcj5fe_k$ = function (value) {
+  Companion_32.prototype.ofBoolean_vcj5fe_k$ = function (value) {
     return value ? LTrue_getInstance() : LFalse_getInstance();
   };
-  Companion_31.prototype.ofEntry_79fji1_k$ = function (entry) {
+  Companion_32.prototype.ofEntry_79fji1_k$ = function (entry) {
     return LObject_init_$Create$_0([to(new LString('key'), entry._get_key__0_k$()), to(new LString('value'), entry._get_value__0_k$())]);
   };
-  Companion_31.$metadata$ = {
+  Companion_32.$metadata$ = {
     simpleName: 'Companion',
     kind: 'object',
     interfaces: []
   };
-  var Companion_instance_30;
-  function Companion_getInstance_30() {
-    if (Companion_instance_30 == null)
-      new Companion_31();
-    return Companion_instance_30;
+  var Companion_instance_31;
+  function Companion_getInstance_31() {
+    if (Companion_instance_31 == null)
+      new Companion_32();
+    return Companion_instance_31;
   }
   function LAny() {
-    Companion_getInstance_30();
+    Companion_getInstance_31();
   }
   LAny.$metadata$ = {
     simpleName: 'LAny',
@@ -27877,10 +28310,10 @@
   function LObject_init_$Create$_0(pairs) {
     return LObject_init_$Init$_0(pairs, Object.create(LObject.prototype));
   }
-  function Companion_32() {
-    Companion_instance_31 = this;
+  function Companion_33() {
+    Companion_instance_32 = this;
   }
-  Companion_32.prototype.of_b37sri_k$ = function (pairs) {
+  Companion_33.prototype.of_b37sri_k$ = function (pairs) {
     var tmp$ret$0;
     $l$block: {
       tmp$ret$0 = LinkedHashMap_init_$Create$();
@@ -27888,19 +28321,19 @@
     }
     return new LObject(toMap_0(pairs, tmp$ret$0));
   };
-  Companion_32.$metadata$ = {
+  Companion_33.$metadata$ = {
     simpleName: 'Companion',
     kind: 'object',
     interfaces: []
   };
-  var Companion_instance_31;
-  function Companion_getInstance_31() {
-    if (Companion_instance_31 == null)
-      new Companion_32();
-    return Companion_instance_31;
+  var Companion_instance_32;
+  function Companion_getInstance_32() {
+    if (Companion_instance_32 == null)
+      new Companion_33();
+    return Companion_instance_32;
   }
   function LObject(value) {
-    Companion_getInstance_31();
+    Companion_getInstance_32();
     LAny.call(this);
     this._value_29 = value;
   }
@@ -28031,216 +28464,69 @@
       new LTrue();
     return LTrue_instance;
   }
-  function Compilation(compiledSource, parseDuration, compileDuration) {
-    this._compiledSource = compiledSource;
-    this._parseDuration = parseDuration;
-    this._compileDuration = compileDuration;
-  }
-  Compilation.prototype._get_parseDuration__0_k$ = function () {
-    return this._parseDuration;
-  };
-  Compilation.prototype._get_compileDuration__0_k$ = function () {
-    return this._compileDuration;
-  };
-  Compilation.prototype.sourceToBytes = function () {
-    return this._compiledSource.toBytes_0_k$().toByteArray_0_k$();
-  };
-  Compilation.prototype.sourceToHex = function () {
-    return this._compiledSource.toBytes_0_k$().hex_0_k$();
-  };
-  Compilation.prototype.sourceToBase64 = function () {
-    return this._compiledSource.toBytes_0_k$().base64_0_k$();
-  };
-  Compilation.prototype.createVM = function () {
-    return new VirtualMachine(this._compiledSource);
-  };
-  Compilation.$metadata$ = {
-    simpleName: 'Compilation',
-    kind: 'class',
-    interfaces: []
-  };
-  Object.defineProperty(Compilation.prototype, 'parseDuration', {
-    configurable: true,
-    get: Compilation.prototype._get_parseDuration__0_k$
-  });
-  Object.defineProperty(Compilation.prototype, 'compileDuration', {
-    configurable: true,
-    get: Compilation.prototype._get_compileDuration__0_k$
-  });
-  function ExecutionResult(timedRun) {
-    this._runDuration = Duration__toString_impl(timedRun._duration);
-    this._isError = _Result___get_isFailure__impl_(timedRun._value._value_0);
+  function CompilationResult(timedResult) {
+    this._isError = _Result___get_isFailure__impl_(timedResult._value._value_0);
     var tmp = this;
-    var tmp$ret$1;
-    $l$block_0: {
-      var tmp0_fold_0 = timedRun._value._value_0;
-      {
-      }
-      var exception_1 = Result__exceptionOrNull_impl(tmp0_fold_0);
-      var tmp_0;
-      if (exception_1 == null) {
-        var tmp_1 = _Result___get_value__impl_(tmp0_fold_0);
-        tmp_0 = toString_1((tmp_1 == null ? true : isObject(tmp_1)) ? tmp_1 : THROW_CCE());
+    var tmp_0 = Result__exceptionOrNull_impl(timedResult._value._value_0);
+    tmp._isSyntaxError = tmp_0 instanceof SyntaxException;
+    var tmp_1 = this;
+    var tmp0_safe_receiver = Result__exceptionOrNull_impl(timedResult._value._value_0);
+    tmp_1._errorMessage = tmp0_safe_receiver == null ? null : tmp0_safe_receiver.message;
+    var tmp_2 = this;
+    var tmp0_safe_receiver_0 = Result__exceptionOrNull_impl(timedResult._value._value_0);
+    tmp_2._errorStackTrace = tmp0_safe_receiver_0 == null ? null : stackTraceToString(tmp0_safe_receiver_0);
+    var tmp_3 = this;
+    var tmp$ret$0;
+    $l$block: {
+      var tmp0_getOrNull_0 = timedResult._value._value_0;
+      var tmp_4;
+      if (_Result___get_isFailure__impl_(tmp0_getOrNull_0)) {
+        tmp_4 = null;
       } else {
-        var tmp$ret$0;
-        $l$block: {
-          var tmp_2;
-          if (exception_1 instanceof LAnyException) {
-            tmp_2 = '' + 'Thrown: ' + exception_1._value_23 + '\n' + stackTraceToString(exception_1);
-          } else {
-            {
-              tmp_2 = stackTraceToString(exception_1);
-            }
-          }
-          tmp$ret$0 = tmp_2;
-          break $l$block;
-        }
-        tmp_0 = tmp$ret$0;
+        var tmp_5 = _Result___get_value__impl_(tmp0_getOrNull_0);
+        tmp_4 = (tmp_5 == null ? true : isObject(tmp_5)) ? tmp_5 : THROW_CCE();
       }
-      tmp$ret$1 = tmp_0;
-      break $l$block_0;
+      tmp$ret$0 = tmp_4;
+      break $l$block;
     }
-    tmp._result_0 = tmp$ret$1;
+    tmp_3._compiledSource = tmp$ret$0;
+    this._compileDuration = Duration__toString_impl(timedResult._duration);
   }
-  ExecutionResult.prototype._get_runDuration__0_k$ = function () {
-    return this._runDuration;
-  };
-  ExecutionResult.prototype._get_isError__0_k$ = function () {
+  CompilationResult.prototype._get_isError__0_k$ = function () {
     return this._isError;
   };
-  ExecutionResult.prototype._get_result__0_k$ = function () {
-    return this._result_0;
+  CompilationResult.prototype._get_isSyntaxError__0_k$ = function () {
+    return this._isSyntaxError;
   };
-  ExecutionResult.$metadata$ = {
-    simpleName: 'ExecutionResult',
-    kind: 'class',
-    interfaces: []
+  CompilationResult.prototype._get_errorMessage__0_k$ = function () {
+    return this._errorMessage;
   };
-  Object.defineProperty(ExecutionResult.prototype, 'runDuration', {
-    configurable: true,
-    get: ExecutionResult.prototype._get_runDuration__0_k$
-  });
-  Object.defineProperty(ExecutionResult.prototype, 'isError', {
-    configurable: true,
-    get: ExecutionResult.prototype._get_isError__0_k$
-  });
-  Object.defineProperty(ExecutionResult.prototype, 'result', {
-    configurable: true,
-    get: ExecutionResult.prototype._get_result__0_k$
-  });
-  function Lin_0() {
-    Lin_instance_0 = this;
-  }
-  Lin_0.prototype.compile = function (source) {
-    var tmp$ret$2;
-    $l$block_1: {
-      {
-      }
-      var tmp$ret$1;
-      $l$block_0: {
-        var tmp0_measureTimedValue_0_1 = Monotonic_getInstance();
-        {
-        }
-        var mark_2_2 = tmp0_measureTimedValue_0_1.markNow_0_k$();
-        var tmp$ret$0;
-        $l$block: {
-          var tmp = Lin_getInstance()._parser_0;
-          tmp$ret$0 = tmp.parse_97u0gy_k$(Source_init_$Create$(source, null, null, 6, null));
-          break $l$block;
-        }
-        var result_3_3 = tmp$ret$0;
-        tmp$ret$1 = new TimedValue(result_3_3, mark_2_2.elapsedNow_jukv7u_k$());
-        break $l$block_0;
-      }
-      tmp$ret$2 = tmp$ret$1;
-      break $l$block_1;
-    }
-    var tmp0_container = tmp$ret$2;
-    var node = tmp0_container.component1_0_k$();
-    var parseDuration = tmp0_container.component2_jukv7u_k$();
-    var tmp$ret$5;
-    $l$block_4: {
-      {
-      }
-      var tmp$ret$4;
-      $l$block_3: {
-        var tmp0_measureTimedValue_0_1_0 = Monotonic_getInstance();
-        {
-        }
-        var mark_2_2_0 = tmp0_measureTimedValue_0_1_0.markNow_0_k$();
-        var tmp$ret$3;
-        $l$block_2: {
-          tmp$ret$3 = Companion_getInstance_29().compile_35k71k_k$(node);
-          break $l$block_2;
-        }
-        var result_3_3_0 = tmp$ret$3;
-        tmp$ret$4 = new TimedValue(result_3_3_0, mark_2_2_0.elapsedNow_jukv7u_k$());
-        break $l$block_3;
-      }
-      tmp$ret$5 = tmp$ret$4;
-      break $l$block_4;
-    }
-    var tmp1_container = tmp$ret$5;
-    var compiledSource = tmp1_container.component1_0_k$();
-    var compileDuration = tmp1_container.component2_jukv7u_k$();
-    return new Compilation(compiledSource, Duration__toString_impl(parseDuration), Duration__toString_impl(compileDuration));
+  CompilationResult.prototype._get_errorStackTrace__0_k$ = function () {
+    return this._errorStackTrace;
   };
-  Lin_0.$metadata$ = {
-    simpleName: 'Lin',
-    kind: 'object',
-    interfaces: []
+  CompilationResult.prototype._get_compileDuration__0_k$ = function () {
+    return this._compileDuration;
   };
-  var Lin_instance_0;
-  function Lin_getInstance_0() {
-    if (Lin_instance_0 == null)
-      new Lin_0();
-    return Lin_instance_0;
-  }
-  function LinDefaultRuntime() {
-    LinDefaultRuntime_instance = this;
-    var tmp$ret$2;
-    $l$block_1: {
-      {
-      }
-      var tmp$ret$1;
-      $l$block_0: {
-        var tmp$ret$0;
-        $l$block: {
-          var tmp0_apply_0_1 = LinkedHashMap_init_$Create$();
-          {
-          }
-          {
-            tmp0_apply_0_1.put_1q9pf_k$('__ensureNotNull', LinRuntime_getInstance()._ensureNotNull);
-            Unit_getInstance();
-          }
-          tmp$ret$0 = tmp0_apply_0_1;
-          break $l$block;
-        }
-        tmp$ret$1 = tmp$ret$0.build_0_k$();
-        break $l$block_0;
-      }
-      tmp$ret$2 = tmp$ret$1;
-      break $l$block_1;
-    }
-    var map_0 = tmp$ret$2;
-    this._scope_1 = new ImmutableMapScope(map_0, null);
-  }
-  LinDefaultRuntime.$metadata$ = {
-    simpleName: 'LinDefaultRuntime',
-    kind: 'object',
-    interfaces: []
+  CompilationResult.prototype.sourceToBytes = function () {
+    if (this._compiledSource == null) {
+      throw RuntimeException_init_$Create$('Compilation failed.');
+    }return this._compiledSource.toBytes_0_k$().toByteArray_0_k$();
   };
-  var LinDefaultRuntime_instance;
-  function LinDefaultRuntime_getInstance() {
-    if (LinDefaultRuntime_instance == null)
-      new LinDefaultRuntime();
-    return LinDefaultRuntime_instance;
-  }
-  function VirtualMachine(source) {
-    this._source_5 = source;
-    this._vm = new LinVirtualMachine(LinDefaultRuntime_getInstance()._scope_1, this._source_5);
-  }
-  VirtualMachine.prototype.run = function () {
+  CompilationResult.prototype.sourceToHex = function () {
+    if (this._compiledSource == null) {
+      throw RuntimeException_init_$Create$('Compilation failed.');
+    }return this._compiledSource.toBytes_0_k$().hex_0_k$();
+  };
+  CompilationResult.prototype.sourceToBase64 = function () {
+    if (this._compiledSource == null) {
+      throw RuntimeException_init_$Create$('Compilation failed.');
+    }return this._compiledSource.toBytes_0_k$().base64_0_k$();
+  };
+  CompilationResult.prototype.run = function () {
+    if (this._compiledSource == null) {
+      throw RuntimeException_init_$Create$('Compilation failed.');
+    }var runtime = new LinJsRuntime();
+    var vm = new LinVirtualMachine(runtime._scope_1, this._compiledSource);
     var tmp$ret$6;
     $l$block_5: {
       {
@@ -28255,7 +28541,204 @@
         $l$block_3: {
           var tmp$ret$3;
           $l$block_2: {
-            var tmp0_runCatching_0_5 = this._vm;
+            var tmp;
+            try {
+              var tmp$ret$1;
+              $l$block_0: {
+                var tmp0_success_0_1_5 = Companion_getInstance_3();
+                var tmp$ret$0;
+                $l$block: {
+                  tmp$ret$0 = vm.run_0_k$();
+                  break $l$block;
+                }
+                var tmp1_success_0_2_6 = tmp$ret$0;
+                tmp$ret$1 = _Result___init__impl_(tmp1_success_0_2_6);
+                break $l$block_0;
+              }
+              tmp = tmp$ret$1;
+            } catch ($p) {
+              var tmp_0;
+              if ($p instanceof Error) {
+                var tmp$ret$2;
+                $l$block_1: {
+                  var tmp2_failure_0_4_8 = Companion_getInstance_3();
+                  tmp$ret$2 = _Result___init__impl_(createFailure($p));
+                  break $l$block_1;
+                }
+                tmp_0 = tmp$ret$2;
+              } else {
+                {
+                  throw $p;
+                }
+              }
+              tmp = tmp_0;
+            }
+            tmp$ret$3 = tmp;
+            break $l$block_2;
+          }
+          tmp$ret$4 = tmp$ret$3;
+          break $l$block_3;
+        }
+        var result_3_3 = tmp$ret$4;
+        tmp$ret$5 = new TimedValue(new Result(result_3_3), mark_2_2.elapsedNow_jukv7u_k$());
+        break $l$block_4;
+      }
+      tmp$ret$6 = tmp$ret$5;
+      break $l$block_5;
+    }
+    return new ExecutionResult(tmp$ret$6, runtime._console);
+  };
+  CompilationResult.$metadata$ = {
+    simpleName: 'CompilationResult',
+    kind: 'class',
+    interfaces: []
+  };
+  Object.defineProperty(CompilationResult.prototype, 'isError', {
+    configurable: true,
+    get: CompilationResult.prototype._get_isError__0_k$
+  });
+  Object.defineProperty(CompilationResult.prototype, 'isSyntaxError', {
+    configurable: true,
+    get: CompilationResult.prototype._get_isSyntaxError__0_k$
+  });
+  Object.defineProperty(CompilationResult.prototype, 'errorMessage', {
+    configurable: true,
+    get: CompilationResult.prototype._get_errorMessage__0_k$
+  });
+  Object.defineProperty(CompilationResult.prototype, 'errorStackTrace', {
+    configurable: true,
+    get: CompilationResult.prototype._get_errorStackTrace__0_k$
+  });
+  Object.defineProperty(CompilationResult.prototype, 'compileDuration', {
+    configurable: true,
+    get: CompilationResult.prototype._get_compileDuration__0_k$
+  });
+  function _no_name_provided__137() {
+  }
+  _no_name_provided__137.prototype.invoke_t3s03y_k$ = function (it) {
+    return '' + '  at ' + it;
+  };
+  _no_name_provided__137.prototype.invoke_20e8_k$ = function (p1) {
+    return this.invoke_t3s03y_k$(p1 instanceof LAny ? p1 : THROW_CCE());
+  };
+  _no_name_provided__137.$metadata$ = {
+    kind: 'class',
+    interfaces: []
+  };
+  function ExecutionResult(timedRun, log) {
+    var tmp = this;
+    var tmp$ret$0;
+    $l$block: {
+      var tmp0_toTypedArray_0 = lines(log);
+      tmp$ret$0 = copyToArray_0(tmp0_toTypedArray_0);
+      break $l$block;
+    }
+    tmp._consoleLines = tmp$ret$0;
+    this._runDuration = Duration__toString_impl(timedRun._duration);
+    this._isError_0 = _Result___get_isFailure__impl_(timedRun._value._value_0);
+    var tmp_0 = this;
+    var tmp$ret$2;
+    $l$block_1: {
+      var tmp0_fold_0 = timedRun._value._value_0;
+      {
+      }
+      var exception_1 = Result__exceptionOrNull_impl(tmp0_fold_0);
+      var tmp_1;
+      if (exception_1 == null) {
+        var tmp_2 = _Result___get_value__impl_(tmp0_fold_0);
+        tmp_1 = toString_1((tmp_2 == null ? true : isObject(tmp_2)) ? tmp_2 : THROW_CCE());
+      } else {
+        var tmp$ret$1;
+        $l$block_0: {
+          var tmp_3;
+          if (exception_1 instanceof LAnyException) {
+            var errorType_3 = exception_1._value_23.getMember_6wfw3l_k$('errorType');
+            var description_4 = exception_1._value_23.getMember_6wfw3l_k$('description');
+            var tmp_4 = exception_1._value_23.getMember_6wfw3l_k$('stackTrace');
+            var stackTrace_5 = tmp_4 instanceof LArray ? tmp_4 : null;
+            var tmp_5;
+            if ((!(errorType_3 == null) ? !(description_4 == null) : false) ? !(stackTrace_5 == null) : false) {
+              tmp_5 = '' + 'Lin Error - ' + errorType_3 + ': ' + description_4 + '\n' + joinToString$default_0(stackTrace_5._value_26, '\n', null, null, 0, null, _no_name_provided_$factory_131(), 30, null);
+            } else {
+              tmp_5 = '' + 'Lin Object was thrown: ' + exception_1._value_23;
+            }
+            tmp_3 = tmp_5;
+          } else {
+            {
+              tmp_3 = '' + 'Platform Error: ' + stackTraceToString(exception_1);
+            }
+          }
+          tmp$ret$1 = tmp_3;
+          break $l$block_0;
+        }
+        tmp_1 = tmp$ret$1;
+      }
+      tmp$ret$2 = tmp_1;
+      break $l$block_1;
+    }
+    tmp_0._result_0 = tmp$ret$2;
+  }
+  ExecutionResult.prototype._get_consoleLines__0_k$ = function () {
+    return this._consoleLines;
+  };
+  ExecutionResult.prototype._get_runDuration__0_k$ = function () {
+    return this._runDuration;
+  };
+  ExecutionResult.prototype._get_isError__0_k$ = function () {
+    return this._isError_0;
+  };
+  ExecutionResult.prototype._get_result__0_k$ = function () {
+    return this._result_0;
+  };
+  ExecutionResult.$metadata$ = {
+    simpleName: 'ExecutionResult',
+    kind: 'class',
+    interfaces: []
+  };
+  Object.defineProperty(ExecutionResult.prototype, 'consoleLines', {
+    configurable: true,
+    get: ExecutionResult.prototype._get_consoleLines__0_k$
+  });
+  Object.defineProperty(ExecutionResult.prototype, 'runDuration', {
+    configurable: true,
+    get: ExecutionResult.prototype._get_runDuration__0_k$
+  });
+  Object.defineProperty(ExecutionResult.prototype, 'isError', {
+    configurable: true,
+    get: ExecutionResult.prototype._get_isError__0_k$
+  });
+  Object.defineProperty(ExecutionResult.prototype, 'result', {
+    configurable: true,
+    get: ExecutionResult.prototype._get_result__0_k$
+  });
+  function _no_name_provided_$factory_131() {
+    var i = new _no_name_provided__137();
+    return function (p1) {
+      return i.invoke_t3s03y_k$(p1);
+    };
+  }
+  function Lin_0() {
+    Lin_instance_0 = this;
+  }
+  Lin_0.prototype.parse = function (source, name) {
+    return this.parse_jg38oy_k$(source, name === void 1 ? 'snippet.lin' : name);
+  };
+  Lin_0.prototype.parse_jg38oy_k$ = function (source, name) {
+    var tmp$ret$6;
+    $l$block_5: {
+      {
+      }
+      var tmp$ret$5;
+      $l$block_4: {
+        var tmp0_measureTimedValue_0_1 = Monotonic_getInstance();
+        {
+        }
+        var mark_2_2 = tmp0_measureTimedValue_0_1.markNow_0_k$();
+        var tmp$ret$4;
+        $l$block_3: {
+          var tmp$ret$3;
+          $l$block_2: {
+            var tmp0_runCatching_0_5 = Lin_getInstance()._parser_0;
             var tmp;
             try {
               var tmp$ret$1;
@@ -28263,7 +28746,7 @@
                 var tmp0_success_0_1_6 = Companion_getInstance_3();
                 var tmp$ret$0;
                 $l$block: {
-                  tmp$ret$0 = tmp0_runCatching_0_5.run_0_k$();
+                  tmp$ret$0 = tmp0_runCatching_0_5.parse_97u0gy_k$(Source_init_$Create$(source, name, null, 4, null));
                   break $l$block;
                 }
                 var tmp1_success_0_2_7 = tmp$ret$0;
@@ -28301,13 +28784,251 @@
       tmp$ret$6 = tmp$ret$5;
       break $l$block_5;
     }
-    return new ExecutionResult(tmp$ret$6);
+    return new ParseResult(tmp$ret$6);
   };
-  VirtualMachine.$metadata$ = {
-    simpleName: 'VirtualMachine',
+  Lin_0.prototype.parse$default_877n1b_k$ = function (source, name, $mask0, $handler) {
+    if (!(($mask0 & 2) === 0))
+      name = 'snippet.lin';
+    return this.parse_jg38oy_k$(source, name);
+  };
+  Lin_0.$metadata$ = {
+    simpleName: 'Lin',
+    kind: 'object',
+    interfaces: []
+  };
+  var Lin_instance_0;
+  function Lin_getInstance_0() {
+    if (Lin_instance_0 == null)
+      new Lin_0();
+    return Lin_instance_0;
+  }
+  function _no_name_provided__138(this$0) {
+    this._this$0_5 = this$0;
+  }
+  _no_name_provided__138.prototype.invoke_ec99pl_k$ = function (_anonymous_parameter_0_, args) {
+    this._this$0_5._console.append_uch40_k$(joinToString$default_0(args, ' ', null, null, 0, null, null, 62, null));
+    Unit_getInstance();
+    return LNull_getInstance();
+  };
+  _no_name_provided__138.prototype.invoke_osx4an_k$ = function (p1, p2) {
+    var tmp = (p1 == null ? true : p1 instanceof LAny) ? p1 : THROW_CCE();
+    return this.invoke_ec99pl_k$(tmp, (!(p2 == null) ? isInterface(p2, List) : false) ? p2 : THROW_CCE());
+  };
+  _no_name_provided__138.$metadata$ = {
     kind: 'class',
     interfaces: []
   };
+  function _no_name_provided__139(this$0) {
+    this._this$0_6 = this$0;
+  }
+  _no_name_provided__139.prototype.invoke_ec99pl_k$ = function (_anonymous_parameter_0_, args) {
+    var tmp$ret$1;
+    $l$block_0: {
+      var tmp0_appendLine_0_5 = this._this$0_6._console;
+      var tmp1_appendLine_0_6 = joinToString$default_0(args, ' ', null, null, 0, null, null, 62, null);
+      var tmp$ret$0;
+      $l$block: {
+        var tmp0_appendLine_0_1_7 = tmp0_appendLine_0_5.append_uch40_k$(tmp1_appendLine_0_6);
+        tmp$ret$0 = tmp0_appendLine_0_1_7.append_wi8o78_k$(new Char(10));
+        break $l$block;
+      }
+      tmp$ret$1 = tmp$ret$0;
+      break $l$block_0;
+    }
+    Unit_getInstance();
+    return LNull_getInstance();
+  };
+  _no_name_provided__139.prototype.invoke_osx4an_k$ = function (p1, p2) {
+    var tmp = (p1 == null ? true : p1 instanceof LAny) ? p1 : THROW_CCE();
+    return this.invoke_ec99pl_k$(tmp, (!(p2 == null) ? isInterface(p2, List) : false) ? p2 : THROW_CCE());
+  };
+  _no_name_provided__139.$metadata$ = {
+    kind: 'class',
+    interfaces: []
+  };
+  function LinJsRuntime() {
+    this._console = StringBuilder_init_$Create$_0();
+    var tmp$ret$2;
+    $l$block_1: {
+      {
+      }
+      var tmp$ret$1;
+      $l$block_0: {
+        var tmp$ret$0;
+        $l$block: {
+          var tmp0_apply_0_1 = LinkedHashMap_init_$Create$();
+          {
+          }
+          {
+            tmp0_apply_0_1.put_1q9pf_k$('__ensureNotNull', LinRuntime_getInstance()._ensureNotNull);
+            Unit_getInstance();
+            tmp0_apply_0_1.put_1q9pf_k$('print', LNativeFunction_init_$Create$(null, _no_name_provided_$factory_132(this), 1, null));
+            Unit_getInstance();
+            tmp0_apply_0_1.put_1q9pf_k$('println', LNativeFunction_init_$Create$(null, _no_name_provided_$factory_133(this), 1, null));
+            Unit_getInstance();
+          }
+          tmp$ret$0 = tmp0_apply_0_1;
+          break $l$block;
+        }
+        tmp$ret$1 = tmp$ret$0.build_0_k$();
+        break $l$block_0;
+      }
+      tmp$ret$2 = tmp$ret$1;
+      break $l$block_1;
+    }
+    var map_0 = tmp$ret$2;
+    this._scope_1 = new ImmutableMapScope(map_0, null);
+  }
+  LinJsRuntime.$metadata$ = {
+    simpleName: 'LinJsRuntime',
+    kind: 'class',
+    interfaces: []
+  };
+  function _no_name_provided_$factory_132(this$0) {
+    var i = new _no_name_provided__138(this$0);
+    return function (p1, p2) {
+      return i.invoke_ec99pl_k$(p1, p2);
+    };
+  }
+  function _no_name_provided_$factory_133(this$0) {
+    var i = new _no_name_provided__139(this$0);
+    return function (p1, p2) {
+      return i.invoke_ec99pl_k$(p1, p2);
+    };
+  }
+  function ParseResult(timedResult) {
+    this._isError_1 = _Result___get_isFailure__impl_(timedResult._value._value_0);
+    var tmp = this;
+    var tmp_0 = Result__exceptionOrNull_impl(timedResult._value._value_0);
+    tmp._isSyntaxError_0 = tmp_0 instanceof SyntaxException;
+    var tmp_1 = this;
+    var tmp0_safe_receiver = Result__exceptionOrNull_impl(timedResult._value._value_0);
+    tmp_1._errorMessage_0 = tmp0_safe_receiver == null ? null : tmp0_safe_receiver.message;
+    var tmp_2 = this;
+    var tmp0_safe_receiver_0 = Result__exceptionOrNull_impl(timedResult._value._value_0);
+    tmp_2._errorStackTrace_0 = tmp0_safe_receiver_0 == null ? null : stackTraceToString(tmp0_safe_receiver_0);
+    var tmp_3 = this;
+    var tmp$ret$0;
+    $l$block: {
+      var tmp0_getOrNull_0 = timedResult._value._value_0;
+      var tmp_4;
+      if (_Result___get_isFailure__impl_(tmp0_getOrNull_0)) {
+        tmp_4 = null;
+      } else {
+        var tmp_5 = _Result___get_value__impl_(tmp0_getOrNull_0);
+        tmp_4 = (tmp_5 == null ? true : isObject(tmp_5)) ? tmp_5 : THROW_CCE();
+      }
+      tmp$ret$0 = tmp_4;
+      break $l$block;
+    }
+    tmp_3._parsedNode = tmp$ret$0;
+    this._parseDuration = Duration__toString_impl(timedResult._duration);
+  }
+  ParseResult.prototype._get_isError__0_k$ = function () {
+    return this._isError_1;
+  };
+  ParseResult.prototype._get_isSyntaxError__0_k$ = function () {
+    return this._isSyntaxError_0;
+  };
+  ParseResult.prototype._get_errorMessage__0_k$ = function () {
+    return this._errorMessage_0;
+  };
+  ParseResult.prototype._get_errorStackTrace__0_k$ = function () {
+    return this._errorStackTrace_0;
+  };
+  ParseResult.prototype._get_parseDuration__0_k$ = function () {
+    return this._parseDuration;
+  };
+  ParseResult.prototype.compile = function () {
+    if (this._parsedNode == null) {
+      throw RuntimeException_init_$Create$('Parsing failed.');
+    }var tmp$ret$6;
+    $l$block_5: {
+      {
+      }
+      var tmp$ret$5;
+      $l$block_4: {
+        var tmp0_measureTimedValue_0_1 = Monotonic_getInstance();
+        {
+        }
+        var mark_2_2 = tmp0_measureTimedValue_0_1.markNow_0_k$();
+        var tmp$ret$4;
+        $l$block_3: {
+          var tmp$ret$3;
+          $l$block_2: {
+            var tmp0_runCatching_0_5 = Companion_getInstance_30();
+            var tmp;
+            try {
+              var tmp$ret$1;
+              $l$block_0: {
+                var tmp0_success_0_1_6 = Companion_getInstance_3();
+                var tmp$ret$0;
+                $l$block: {
+                  tmp$ret$0 = tmp0_runCatching_0_5.compile_35k71k_k$(this._parsedNode);
+                  break $l$block;
+                }
+                var tmp1_success_0_2_7 = tmp$ret$0;
+                tmp$ret$1 = _Result___init__impl_(tmp1_success_0_2_7);
+                break $l$block_0;
+              }
+              tmp = tmp$ret$1;
+            } catch ($p) {
+              var tmp_0;
+              if ($p instanceof Error) {
+                var tmp$ret$2;
+                $l$block_1: {
+                  var tmp2_failure_0_4_9 = Companion_getInstance_3();
+                  tmp$ret$2 = _Result___init__impl_(createFailure($p));
+                  break $l$block_1;
+                }
+                tmp_0 = tmp$ret$2;
+              } else {
+                {
+                  throw $p;
+                }
+              }
+              tmp = tmp_0;
+            }
+            tmp$ret$3 = tmp;
+            break $l$block_2;
+          }
+          tmp$ret$4 = tmp$ret$3;
+          break $l$block_3;
+        }
+        var result_3_3 = tmp$ret$4;
+        tmp$ret$5 = new TimedValue(new Result(result_3_3), mark_2_2.elapsedNow_jukv7u_k$());
+        break $l$block_4;
+      }
+      tmp$ret$6 = tmp$ret$5;
+      break $l$block_5;
+    }
+    return new CompilationResult(tmp$ret$6);
+  };
+  ParseResult.$metadata$ = {
+    simpleName: 'ParseResult',
+    kind: 'class',
+    interfaces: []
+  };
+  Object.defineProperty(ParseResult.prototype, 'isError', {
+    configurable: true,
+    get: ParseResult.prototype._get_isError__0_k$
+  });
+  Object.defineProperty(ParseResult.prototype, 'isSyntaxError', {
+    configurable: true,
+    get: ParseResult.prototype._get_isSyntaxError__0_k$
+  });
+  Object.defineProperty(ParseResult.prototype, 'errorMessage', {
+    configurable: true,
+    get: ParseResult.prototype._get_errorMessage__0_k$
+  });
+  Object.defineProperty(ParseResult.prototype, 'errorStackTrace', {
+    configurable: true,
+    get: ParseResult.prototype._get_errorStackTrace__0_k$
+  });
+  Object.defineProperty(ParseResult.prototype, 'parseDuration', {
+    configurable: true,
+    get: ParseResult.prototype._get_parseDuration__0_k$
+  });
   InternalHashCodeMap.prototype.createJsMap_0_k$ = InternalMap.prototype.createJsMap_0_k$;
   GrammarBuilder.prototype.prefix$default_914gix_k$ = GrammarDSL.prototype.prefix$default_914gix_k$;
   GrammarBuilder.prototype.infix$default_dfvar_k$ = GrammarDSL.prototype.infix$default_dfvar_k$;
@@ -28387,13 +29108,13 @@
   var $com$github$notjustanna = $com$github.notjustanna || ($com$github.notjustanna = {});
   var $com$github$notjustanna$lin = $com$github$notjustanna.lin || ($com$github$notjustanna.lin = {});
   var $com$github$notjustanna$lin$js = $com$github$notjustanna$lin.js || ($com$github$notjustanna$lin.js = {});
-  $com$github$notjustanna$lin$js.Compilation = Compilation;
+  $com$github$notjustanna$lin$js.CompilationResult = CompilationResult;
   $com$github$notjustanna$lin$js.ExecutionResult = ExecutionResult;
   Object.defineProperty($com$github$notjustanna$lin$js, 'Lin', {
     configurable: true,
     get: Lin_getInstance_0
   });
-  $com$github$notjustanna$lin$js.VirtualMachine = VirtualMachine;
+  $com$github$notjustanna$lin$js.ParseResult = ParseResult;
   return _;
 }));
 
