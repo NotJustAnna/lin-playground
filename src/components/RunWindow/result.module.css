@@ -1,5 +1,5 @@
 .success {
-    background-color: #2f6822;
+    background-color: #2e8031;
     margin: 0;
     font-size: 14px;
     padding: 0.5rem 1rem;
@@ -9,7 +9,17 @@
 }
 
 .errored {
-    background-color: #682222;
+    background-color: #80802e;
+    margin: 0;
+    font-size: 14px;
+    padding: 0.5rem 1rem;
+    color: #f0f0ff;
+    overflow: auto;
+    white-space: pre-wrap;
+}
+
+.failed {
+    background-color: #802e31;
     margin: 0;
     font-size: 14px;
     padding: 0.5rem 1rem;
@@ -19,7 +29,8 @@
 }
 
 .duration {
-    background-color: #111;
+    background-color: #020e1a;
     padding: 0.5rem 1rem;
     color: #f0f0ff;
+    font-style: italic;
 }

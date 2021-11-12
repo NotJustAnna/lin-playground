@@ -1,66 +1,98 @@
-import { com } from '../../vendor/lin';
+import { Lin } from '@lin-lang/lin';
 
 export interface LinParseError {
-  errored: 'parsing';
-  isSyntaxError: boolean;
-  errorMessage: string | null | undefined;
-  errorStackTrace: string | null | undefined;
+  failed: 'parsing';
+  error: Error;
+  parseDuration: string;
+}
+
+export interface LinValidationError {
+  failed: 'validation';
+  message: string;
   parseDuration: string;
 }
 
 export interface LinCompileError {
-  errored: 'compiling';
-  isSyntaxError: boolean;
-  errorMessage: string | null | undefined;
-  errorStackTrace: string | null | undefined;
+  failed: 'compiling';
+  error: Error;
   parseDuration: string;
   compileDuration: string;
 }
 
+export interface LinExecutionError {
+  failed: 'execution';
+  consoleLines: string[];
+  error: Error;
+  parseDuration: string;
+  compileDuration: string;
+  runDuration: string;
+}
+
 export interface LinExecutionResult {
+  failed: false;
+  errored: boolean;
   result: string;
-  errored: false | 'execution';
   consoleLines: string[];
   parseDuration: string;
   compileDuration: string;
   runDuration: string;
 }
 
-export type LinResult = LinParseError | LinCompileError | LinExecutionResult;
+export type LinResult = LinParseError | LinValidationError | LinCompileError | LinExecutionError | LinExecutionResult;
 
 export async function executeLinCode(code: string): Promise<LinResult> {
-  const parseResult = net.notjustanna.lin.js.Lin.parse(code, 'snippet.lin');
-
-  if (parseResult.isError) {
+  const parseResult = Lin.parse(code, 'snippet.lin');
+  if (parseResult.isFailure) {
     return {
-      errored: 'parsing',
-      isSyntaxError: parseResult.isSyntaxError,
-      errorMessage: parseResult.errorMessage,
-      errorStackTrace: parseResult.errorStackTrace,
-      parseDuration: parseResult.parseDuration,
-    }
+      failed: 'parsing',
+      error: parseResult.exceptionOrNull()!,
+      parseDuration: parseResult.duration.toString(),
+    };
   }
 
-  const compileResult = parseResult.compile();
-  if (compileResult.isError) {
+  const parsedSnippet = parseResult.getOrNull()!;
+
+  const validationReport = parsedSnippet.validate();
+  if (!validationReport.isValid) {
     return {
-      errored: 'compiling',
-      isSyntaxError: compileResult.isSyntaxError,
-      errorMessage: compileResult.errorMessage,
-      errorStackTrace: compileResult.errorStackTrace,
-      parseDuration: parseResult.parseDuration,
-      compileDuration: compileResult.compileDuration,
-    }
+      failed: 'validation',
+      message: validationReport.toString(),
+      parseDuration: parseResult.duration.toString(),
+    };
   }
 
-  const runResult = compileResult.run();
+  const compileResult = parsedSnippet.compile();
+  if (compileResult.isFailure) {
+    return {
+      failed: 'compiling',
+      error: compileResult.exceptionOrNull()!,
+      parseDuration: parseResult.duration.toString(),
+      compileDuration: compileResult.duration.toString(),
+    };
+  }
 
+  const compiledSnippet = compileResult.getOrNull()!;
+
+  const runReport = compiledSnippet.run();
+  if (runReport.result.isFailure) {
+    return {
+      failed: 'execution',
+      error: runReport.result.exceptionOrNull()!,
+      consoleLines: runReport.consoleLines,
+      parseDuration: parseResult.duration.toString(),
+      compileDuration: compileResult.duration.toString(),
+      runDuration: runReport.result.duration.toString(),
+    };
+  }
+
+  const result = runReport.result.getOrNull()!;
   return {
-    errored: runResult.isError ? 'execution' : false,
-    result: runResult.result,
-    consoleLines: runResult.consoleLines || [],
-    parseDuration: parseResult.parseDuration,
-    compileDuration: compileResult.compileDuration,
-    runDuration: runResult.runDuration,
-  }
+    failed: false,
+    errored: result.isFailure,
+    result: result.isSuccess ? result.getOrNull()! : result.thrownOrNull()!,
+    consoleLines: runReport.consoleLines,
+    parseDuration: parseResult.duration.toString(),
+    compileDuration: compileResult.duration.toString(),
+    runDuration: runReport.result.duration.toString(),
+  };
 }

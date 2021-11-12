@@ -1632,6 +1632,11 @@
   dependencies:
     "@lezer/common" "^0.15.0"
 
+"@lin-lang/lin@^0.2.2":
+  version "0.2.2"
+  resolved "https://registry.yarnpkg.com/@lin-lang/lin/-/lin-0.2.2.tgz#c7f0fd7c89a49894b21d8ed600b12b99a3d0f065"
+  integrity sha512-/fN+bmOmpJFXMvIZ8k6ui5ntCJnBiVhLN5tx+Is0jSaEHyDgBRVCH4okhScBiicxXGaolNfpxCsUT0y+yY0apw==
+
 "@nodelib/fs.scandir@2.1.4":
   version "2.1.4"
   resolved "https://registry.yarnpkg.com/@nodelib/fs.scandir/-/fs.scandir-2.1.4.tgz#d4b3549a5db5de2683e0c1071ab4f140904bbf69"
@@ -7126,9 +7131,6 @@ levn@~0.3.0:
   dependencies:
     prelude-ls "~1.1.2"
     type-check "~0.3.2"
-
-lin@./vendor/lin:
-  version "0.1.0"
 
 lines-and-columns@^1.1.6:
   version "1.1.6"
