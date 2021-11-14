@@ -16,6 +16,10 @@
     -webkit-box-shadow: none;
     -moz-box-shadow: none;
     box-shadow: none;
+}
 
-    resize: none; /*remove the resize handle on the bottom right*/
+.cme {
+    flex-grow: 1;
+    font-size: 18px;
+    overflow: auto;
 }

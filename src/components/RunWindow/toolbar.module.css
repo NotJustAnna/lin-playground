@@ -1,6 +1,6 @@
 .toolbar {
     padding: 0.75rem;
-    background-color: black;
+    background-color: #020e1a;
     display: flex;
     flex-direction: row-reverse;
 }
